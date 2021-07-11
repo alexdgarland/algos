@@ -1,6 +1,6 @@
 package hrank
 
-import hrank.HRankUtil.{isPermutation, isPermutationOfPalindrome, isPermutationOfPalindromeConstantFactorsOptimised, isUnique, isUniqueNoDataStructures, urlify}
+import hrank.HRankUtil.{isPermutation, isPermutationOfPalindrome, isPermutationOfPalindromeConstantFactorsOptimised, isTransformableWithinSingleEdit, isUnique, isUniqueNoDataStructures, urlify}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
@@ -52,6 +52,26 @@ class HRankUtilSpec extends AnyFlatSpec with should.Matchers {
 
   it should "return false when string cannot be rearranged to a palindrome" in {
     isPermutationOfPalindromeConstantFactorsOptimised("Tact coax") should be(false)
+  }
+
+  "isTransformableWithinSingleEdit function" should "return true if strings are already the same" in {
+    isTransformableWithinSingleEdit("pale", "pale") should be(true)
+  }
+
+  it should "return true if removing a single character will make strings match" in {
+    isTransformableWithinSingleEdit("pale", "ple") should be(true)
+  }
+
+  it should "return true if adding a single character will make strings match" in {
+    isTransformableWithinSingleEdit("pales", "pale") should be(true)
+  }
+
+  it should "return true if changing a single character will make strings match" in {
+    isTransformableWithinSingleEdit("pale", "bale") should be(true)
+  }
+
+  it should "return false if strings cannot be made to match in one edit" in {
+    isTransformableWithinSingleEdit("pale", "bake") should be(false)
   }
 
 }

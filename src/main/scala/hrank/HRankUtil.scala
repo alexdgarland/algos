@@ -90,4 +90,68 @@ object HRankUtil {
     }
   }
 
+  /***
+   *  Work out whether we can transform the original string into the target by doing one (or zero) transformations,
+   *  which can be adding, removing or changing a single character.
+   *
+   *  Note that this is likely to be *much* simpler than calculating edit distances of an arbitrary size;
+   *  because we don't have to consider the impact of doing multiple interacting edits
+   *  we can work out just by looking at the lengths of the two strings (O(1) in JVM lang's to get string length)
+   *  and know whether which class of single edit might work.
+   *
+   * @param original
+   * @param target
+   * @return
+   */
+  def isTransformableWithinSingleEdit(original: String, target: String): Boolean = {
+    // Some early exit conditions - can these in some way form a base case for recursion?
+    // String equality comparison is O(n)
+    if (original == target) { return true }
+    val stringLengthDiff = original.length - target.length
+    // If length difference is greater than the amount of edits available (1) we definitely can't get there
+    if (stringLengthDiff.abs > 1) { return false }
+
+    // We can now switch in terms of the direction of the difference (if any) in length
+    // The logic to loop over chars here can maybe be made common in some way -
+    // but let's get it working first and then maybe refactor
+    // All of the following iterate through the string once, so are in O(n)
+    var editUsed = false
+
+    if(stringLengthDiff == 0) {
+      // same length - try replacing characters
+      (0 until original.length).foreach { i =>
+        if(original(i) != target(i)) {
+          if(editUsed) { return false }
+          editUsed = true
+        }
+      }
+    }
+
+    if(stringLengthDiff == 1) {
+      // original is longer - try removing characters (or rather skipping over a character in original)
+      var originalSkip = 0
+      // The loop range here is different so take care if trying to make the code more generic
+      (0 until original.length -1).foreach { i =>
+        if(original(i + originalSkip) != target(i)) {
+          if(editUsed) { return false }
+          originalSkip = 1
+          editUsed = true
+        }
+      }
+    }
+
+    if(stringLengthDiff == -1) {
+      // original is shorter - try adding characters (implemented by skipping over a character in target)
+      var targetSkip = 0
+      (0 until original.length).foreach { i =>
+        if(original(i) != target(i  + targetSkip)) {
+          if(editUsed) { return false }
+          targetSkip = 1
+          editUsed = true
+        }
+      }
+    }
+    true
+  }
+
 }
