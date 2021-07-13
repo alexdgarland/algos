@@ -99,57 +99,36 @@ object HRankUtil {
    *  we can work out just by looking at the lengths of the two strings (O(1) in JVM lang's to get string length)
    *  and know whether which class of single edit might work.
    *
-   * @param original
-   * @param target
+   * @param string1
+   * @param string2
    * @return
    */
-  def isTransformableWithinSingleEdit(original: String, target: String): Boolean = {
-    // Some early exit conditions - can these in some way form a base case for recursion?
-    // String equality comparison is O(n)
-    if (original == target) { return true }
-    val stringLengthDiff = original.length - target.length
-    // If length difference is greater than the amount of edits available (1) we definitely can't get there
-    if (stringLengthDiff.abs > 1) { return false }
+  def isTransformableWithinSingleEdit(string1: String, string2: String): Boolean = {
+    // Identify the shorter and longer strings (O(1))
+    // putting them in a known order means adding a character to shorter equates to removing from longer
+    val (shorter, longer) = if(string1.length > string2.length) { (string2, string1) } else (string1, string2)
+    // If length difference is greater than the amount of edits available (1) we definitely can't get there (O(1))
+    if (longer.length - shorter.length > 1) { return false }
 
-    // We can now switch in terms of the direction of the difference (if any) in length
-    // The logic to loop over chars here can maybe be made common in some way -
-    // but let's get it working first and then maybe refactor
-    // All of the following iterate through the string once, so are in O(n)
-    var editUsed = false
-
-    if(stringLengthDiff == 0) {
-      // same length - try replacing characters
-      (0 until original.length).foreach { i =>
-        if(original(i) != target(i)) {
-          if(editUsed) { return false }
-          editUsed = true
-        }
-      }
+    object EditType extends Enumeration {
+      type EditType = Value
+      val ReplaceCharacter, AddCharacter = Value
     }
 
-    if(stringLengthDiff == 1) {
-      // original is longer - try removing characters (or rather skipping over a character in original)
-      var originalSkip = 0
-      // The loop range here is different so take care if trying to make the code more generic
-      (0 until original.length -1).foreach { i =>
-        if(original(i + originalSkip) != target(i)) {
-          if(editUsed) { return false }
-          originalSkip = 1
-          editUsed = true
-        }
-      }
-    }
+    // Constant time assignments
+    val editType = if(longer.length == shorter.length) EditType.ReplaceCharacter else EditType.AddCharacter
+    var (shorterIndex, longerIndex, editAlreadyUsed) = (0, 0, false)
 
-    if(stringLengthDiff == -1) {
-      // original is shorter - try adding characters (implemented by skipping over a character in target)
-      var targetSkip = 0
-      (0 until original.length).foreach { i =>
-        if(original(i) != target(i  + targetSkip)) {
-          if(editUsed) { return false }
-          targetSkip = 1
-          editUsed = true
-        }
+    // O(n) where n is the *shorter* of the two lengths - everything in the loop is constant-time
+    while (shorterIndex < shorter.length & longerIndex < longer.length) {
+      val currentCharsMismatch = shorter(shorterIndex) != longer(longerIndex)
+      if (currentCharsMismatch) {
+        // Fail if we've already used up our one edit - otherwise we can ignore the non-match this once.
+        if (editAlreadyUsed) { return false }
+        editAlreadyUsed = true
       }
+      shorterIndex += (if(currentCharsMismatch & editType == EditType.AddCharacter) 0 else 1)
+      longerIndex += 1
     }
     true
   }
