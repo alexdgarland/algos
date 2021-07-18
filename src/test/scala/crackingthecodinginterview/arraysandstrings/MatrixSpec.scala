@@ -73,10 +73,22 @@ class MatrixSpec extends AnyFlatSpec with should.Matchers {
     matrix should be(expectedClockwiseEvenSize)
   }
 
+  it should "be able to rotate an even-sized matrix by 90 degrees anti-clockwise" in {
+    val matrix = getInputEvenSize
+    Matrix.rotateMatrixInPlace(matrix, AntiClockwise)
+    matrix should be(expectedAntiClockwiseEvenSize)
+  }
+
   it should "rotate an odd-sized matrix by 90 degrees clockwise by default" in {
     val matrix = getInputOddSize
     Matrix.rotateMatrixInPlace(matrix)
     matrix should be(expectedClockwiseOddSize)
+  }
+
+  it should "be able to rotate an odd-sized matrix by 90 degrees anti-clockwise" in {
+    val matrix = getInputOddSize
+    Matrix.rotateMatrixInPlace(matrix, AntiClockwise)
+    matrix should be(expectedAntiClockwiseOddSize)
   }
 
 }
