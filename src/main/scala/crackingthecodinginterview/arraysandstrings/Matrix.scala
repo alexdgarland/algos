@@ -75,4 +75,47 @@ object Matrix {
     }
   }
 
+  /***
+   * If an element in an MxN matrix is 0, its entire row and column are set to 0.
+   *
+   * @param matrix
+   */
+  def zeroMatrix(matrix: Array[Array[Int]]): Unit = {
+    // For an n * m matrix:
+    // O(m) - initialise a single array the same length (number of columns) as each row
+    val columnZeroes = Array.fill[Boolean](matrix(0).length)(false)
+    // Loop n times
+    matrix.foreach { row =>
+      var rowHasZeroes = false
+      // Loop m times (within outer loop)
+      row.indices.foreach { columnIndex =>
+        if(row(columnIndex) == 0) {
+          // We can't zero out the whole row straight away
+          // because we still need to check for any other columns we can mark as containing zeroes
+          // We could optimise by checking if all columns already have zeroes...
+          //...doing so naively could itself involve repeatedly passing through columnZeroes (O(m))
+          // which would defeat the point, but could record and decrement the count of non-zero columns,
+          // then if it is zero short-circuit logic
+          rowHasZeroes = true
+          columnZeroes(columnIndex) = true
+        }
+      }
+      if(rowHasZeroes) {
+        // Loop m times (within same outer loop)
+        row.indices.foreach { columnIndex => row(columnIndex) = 0 }
+      }
+    }
+    // Another O(n * m) loop to actually set things
+    matrix.foreach { row =>
+      // Could skip the inner loop for rows we have already zeroed out if we somehow kept track of that?
+      // Tracking in an array would take extra space but given that we've already zeroed them out
+      // we could just check the first element?
+      row.indices.foreach { columnIndex =>
+        if(columnZeroes(columnIndex)) { row(columnIndex) = 0 }
+      }
+    }
+    // Might be able to optimise further by skipping columns/ rows we already know are zeroed out?
+    // Would leave time complexity as O(n * m) but would shave some time off here and there.
+  }
+
 }

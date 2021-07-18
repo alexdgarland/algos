@@ -91,4 +91,21 @@ class MatrixSpec extends AnyFlatSpec with should.Matchers {
     matrix should be(expectedAntiClockwiseOddSize)
   }
 
+  "zeroMatrix function" should "fully zero out rows and columns that contain a zero" in {
+    val matrix = Array(
+      Array(1, 2, 3, 0),
+      Array(1, 0, 3, 4),
+      Array(1, 2, 3, 4)
+    )
+    Matrix.zeroMatrix(matrix)
+    matrix should be(
+      Array(
+        Array(0, 0, 0, 0),
+        Array(0, 0, 0, 0),
+        Array(1, 0, 3, 0)
+      )
+    )
+
+  }
+
 }
