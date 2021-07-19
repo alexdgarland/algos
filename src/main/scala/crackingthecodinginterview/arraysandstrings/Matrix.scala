@@ -1,5 +1,7 @@
 package crackingthecodinginterview.arraysandstrings
 
+import scala.util.control.Breaks._
+
 object Matrix {
 
   case class Indices(rowIndex: Int, columnIndex: Int)
@@ -81,41 +83,47 @@ object Matrix {
    * @param matrix
    */
   def zeroMatrix(matrix: Array[Array[Int]]): Unit = {
+    val rowSize = matrix(0).length
     // For an n * m matrix:
     // O(m) - initialise a single array the same length (number of columns) as each row
     val columnZeroes = Array.fill[Boolean](matrix(0).length)(false)
+    // Track and decrement the number of columns that might still be non-zero so we can short-circuit in some cases
+    // without having to then constantly loop through the actual tracker array
+    var numberOfNonZeroedColumns = rowSize
     // Loop n times
     matrix.foreach { row =>
       var rowHasZeroes = false
-      // Loop m times (within outer loop)
-      row.indices.foreach { columnIndex =>
-        if(row(columnIndex) == 0) {
-          // We can't zero out the whole row straight away
-          // because we still need to check for any other columns we can mark as containing zeroes
-          // We could optimise by checking if all columns already have zeroes...
-          //...doing so naively could itself involve repeatedly passing through columnZeroes (O(m))
-          // which would defeat the point, but could record and decrement the count of non-zero columns,
-          // then if it is zero short-circuit logic
-          rowHasZeroes = true
-          columnZeroes(columnIndex) = true
+      // Loop m times (within outer loop - so overall O(n * m))
+      breakable {
+        row.indices.foreach { columnIndex =>
+          if (row(columnIndex) == 0) {
+            rowHasZeroes = true
+            if (!columnZeroes(columnIndex)) {
+              columnZeroes(columnIndex) = true
+              numberOfNonZeroedColumns -= 1
+            }
+            // If we've already established that this row has a zero and that ALL columns already have zeroes set,
+            // there is no value checking the rest of this row and we can skip on to zero'ing it out
+            if (numberOfNonZeroedColumns <= 0) {
+              break
+            }
+          }
         }
       }
       if(rowHasZeroes) {
-        // Loop m times (within same outer loop)
+        // Loop m times (within same outer loop - so overall O(n * m))
         row.indices.foreach { columnIndex => row(columnIndex) = 0 }
       }
     }
-    // Another O(n * m) loop to actually set things
+    // Another O(n * m) loop to set zero'd columns once we know which ones contain a zero in any row
     matrix.foreach { row =>
-      // Could skip the inner loop for rows we have already zeroed out if we somehow kept track of that?
-      // Tracking in an array would take extra space but given that we've already zeroed them out
-      // we could just check the first element?
-      row.indices.foreach { columnIndex =>
-        if(columnZeroes(columnIndex)) { row(columnIndex) = 0 }
+      // We don't need to zero out individual columns if we've already zero'd the entire row!
+      if (row.head != 0) {
+        row.indices.foreach { columnIndex =>
+          if(columnZeroes(columnIndex)) { row(columnIndex) = 0 }
+        }
       }
     }
-    // Might be able to optimise further by skipping columns/ rows we already know are zeroed out?
-    // Would leave time complexity as O(n * m) but would shave some time off here and there.
   }
 
 }
