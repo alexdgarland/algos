@@ -13,7 +13,7 @@ package object linkedlists {
 
   case class LinkedList
   (
-  head: Option[Node]
+  var head: Option[Node] = None
   ) {
     /***
      * Converter method mainly to make testing easier.
@@ -29,6 +29,23 @@ package object linkedlists {
       }
       listBuffer.toList
     }
+
+    def append(value: Int): Unit = {
+      val newNode = Node(value)
+      head match {
+        case None =>
+          head = Some(newNode)
+        case Some(existingNode) =>
+          var currentNode = existingNode
+          // Iterate through to the last node -
+          // this pattern seems like it might benefit from being abstracted out (recursively?) at some point
+          while(currentNode.next.isDefined) {
+            currentNode = currentNode.next.get
+          }
+          currentNode.next = Some(newNode)
+      }
+    }
+
   }
 
   object LinkedList {
@@ -40,18 +57,8 @@ package object linkedlists {
      * @return
      */
     def fromList(list: List[Int]): LinkedList = {
-      val linkedList = LinkedList(list.headOption.map(Node(_)))
-
-      linkedList.head match {
-        case Some(value) =>
-          var latestAttachedNode = Some(value)
-          list.tail.foreach { value =>
-            val newNode = Some(Node(value))
-            latestAttachedNode.get.next = newNode
-            latestAttachedNode = newNode
-          }
-        case None =>
-      }
+      val linkedList = LinkedList()
+      list.foreach { linkedList.append }
       linkedList
     }
 

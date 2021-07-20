@@ -15,4 +15,16 @@ class LinkedListBaseSpec extends AnyFlatSpec with should.Matchers {
     LinkedList.fromList(scalaList).toList should be(scalaList)
   }
 
+  it should "be possible to append a value when populated" in {
+    val linkedList = LinkedList.fromList(List(1, 2, 3))
+    linkedList.append(4)
+    linkedList.toList should be(List(1, 2, 3, 4))
+  }
+
+  it should "be possible to append a value when not populated" in {
+    val linkedList = LinkedList.fromList(List())
+    linkedList.append(4)
+    linkedList.toList should be(List(4))
+  }
+
 }
