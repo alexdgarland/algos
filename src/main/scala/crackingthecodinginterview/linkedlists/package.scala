@@ -111,25 +111,13 @@ package object linkedlists {
      * (m being length of  linked-list built so far, averaging to n/ 2)
      * which would give a time complexity of O(n squared).
      *
-     * We keep time complexity lower by keeping track of the last node in the list as we add them.
-     *
      * @param list Scala list to convert to a linked list
      * @return
      */
     def fromList(list: List[Int]): LinkedList = {
-      val linkedList = LinkedList(list.headOption.map(Node(_)))
-
-      linkedList.head match {
-        case Some(value) =>
-          var latestAttachedNode = Some(value)
-          list.tail.foreach { value =>
-            val newNode = Some(Node(value))
-            latestAttachedNode.get.next = newNode
-            latestAttachedNode = newNode
-          }
-        case None =>
-      }
-      linkedList
+      val nodes = list.map(Node(_))
+      (1 until nodes.length).foreach { i => nodes(i-1).next = Some(nodes(i)) }
+      LinkedList(nodes.headOption)
     }
 
   }
