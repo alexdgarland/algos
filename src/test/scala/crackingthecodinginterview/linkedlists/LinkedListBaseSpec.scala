@@ -73,4 +73,24 @@ class LinkedListBaseSpec extends AnyFlatSpec with should.Matchers {
     }
   }
 
+  it should "allow deletion from a populated list" in {
+    val linkedList = LinkedList.fromList(List(1, 2, 3))
+    linkedList.delete(1)
+    linkedList.toList should be(List(1, 3))
+  }
+
+  it should "not allow deletion from an empty list" in {
+    val linkedList = LinkedList()
+    assertThrows[IndexOutOfBoundsException] {
+      linkedList.delete(0)
+    }
+  }
+
+  it should "not allow deletion at an index beyond the end of a populated list" in {
+    val linkedList = LinkedList.fromList(List(1, 2, 3))
+    assertThrows[IndexOutOfBoundsException] {
+      linkedList.delete(3)
+    }
+  }
+
 }

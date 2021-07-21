@@ -98,6 +98,36 @@ package object linkedlists {
      */
     def prepend(value: Int): Unit = insert(value, 0)
 
+    /***
+     * Delete one element from the list at a given index.
+     *
+     * Runs in O(i) where i is the value of the requested index -
+     * the largest value of that that can work is the size of the list at which point it's O(n)
+     * (either way it's linear).
+     *
+     * @param index The index at which to delete a node.
+     */
+    def delete(index: Int): Unit = {
+      val throwIndexTooLarge = () => throw new IndexOutOfBoundsException(
+        s"Cannot delete element at index $index as this is beyond the end of the linked list"
+      )
+      head match {
+        case None =>
+          throw new IndexOutOfBoundsException("Cannot delete from an empty linked list")
+        case Some(node) =>
+          var beforeNode = node
+          (1 until index).foreach { _ =>
+            beforeNode = beforeNode.next.getOrElse(throwIndexTooLarge())
+          }
+          beforeNode.next match {
+            case None =>
+              throwIndexTooLarge()
+            case Some(nodeToDelete) =>
+              beforeNode.next = nodeToDelete.next
+          }
+      }
+    }
+
   }
 
   object LinkedList {
