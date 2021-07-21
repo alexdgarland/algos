@@ -6,16 +6,13 @@ package object linkedlists {
 
   case class Node
   (
-  value: Int,
-  var next: Option[Node] = None
-//  var prev: Option[Node] = None
+    value: Int,
+    var next: Option[Node] = None
+    //  var prev: Option[Node] = None
   )
 
-  case class LinkedList
-  (
-  var head: Option[Node] = None
-  ) {
-    /***
+  case class LinkedList(var head: Option[Node] = None) {
+    /** *
      * Converter method mainly to make testing easier.
      *
      * @return
@@ -23,13 +20,20 @@ package object linkedlists {
     def toList: List[Int] = {
       val listBuffer = ListBuffer[Int]()
       var currentNode = head
-      while(currentNode.isDefined) {
+      while (currentNode.isDefined) {
         listBuffer.append(currentNode.get.value)
         currentNode = currentNode.flatMap(_.next)
       }
       listBuffer.toList
     }
 
+    /** *
+     * Append a new value to the end of the linked-list.
+     *
+     * Runs in O(n) where n is the length of the existing list, as we have to touch each element on the way through.
+     *
+     * @param value The value to insert.
+     */
     def append(value: Int): Unit = {
       val newNode = Node(value)
       head match {
@@ -39,26 +43,92 @@ package object linkedlists {
           var currentNode = existingNode
           // Iterate through to the last node -
           // this pattern seems like it might benefit from being abstracted out (recursively?) at some point
-          while(currentNode.next.isDefined) {
+          while (currentNode.next.isDefined) {
             currentNode = currentNode.next.get
           }
           currentNode.next = Some(newNode)
       }
     }
 
+    /***
+     * Insert a value to an arbitrary point in the list represented by a supplied index.
+     *
+     * Runs in O(i) where i is the value of the requested index -
+     * the largest value of that that can work is the size of the list at which point it's O(n)
+     * (either way it's linear).
+     *
+     * Inserting to the start of the list (index 0) is constant-time
+     * and as this is one of the main reasons to use a linked list, will expose it as a separate method as well.
+     *
+     * @param value The value to insert.
+     * @param index The index at which to insert. If negative or too large for the list, an error will be thrown.
+     */
+    def insert(value: Int, index: Int): Unit = {
+      val newNode = Node(value)
+      if (index < 0) {
+        throw new IndexOutOfBoundsException("Cannot insert to a negative index")
+      }
+      else if (index == 0) {
+        newNode.next = head
+        head = Some(newNode)
+      }
+      else {
+        val throwIndexTooLarge = () =>
+          throw new IndexOutOfBoundsException(s"Cannot insert at index $index as existing list is too short")
+        head match {
+          case None =>
+            throwIndexTooLarge()
+          case Some(node) =>
+            var beforeNode = node
+            (1 until index).foreach { _ =>
+              beforeNode = beforeNode.next.getOrElse(throwIndexTooLarge())
+            }
+            newNode.next = beforeNode.next
+            beforeNode.next = Some(newNode)
+        }
+      }
+    }
+
+    /***
+     * Insert to the start of the list.
+     *
+     * This runs in constant time so should be default way to add data to linked list if ordering is not critical.
+     *
+     * @param value The value to insert.
+     */
+    def prepend(value: Int): Unit = insert(value, 0)
+
   }
 
   object LinkedList {
 
-    /***
+    /** *
      * Converter method mainly to make testing easier.
+     *
+     * Runs in O(n) where n = length of list passed.
+     *
+     * NOT implemented using repeated calls to append() method as this itself runs in O(m)
+     * (m being length of  linked-list built so far, averaging to n/ 2)
+     * which would give a time complexity of O(n squared).
+     *
+     * We keep time complexity lower by keeping track of the last node in the list as we add them.
      *
      * @param list Scala list to convert to a linked list
      * @return
      */
     def fromList(list: List[Int]): LinkedList = {
-      val linkedList = LinkedList()
-      list.foreach { linkedList.append }
+      val linkedList = LinkedList(list.headOption.map(Node(_)))
+
+      linkedList.head match {
+        case Some(value) =>
+          var latestAttachedNode = Some(value)
+          list.tail.foreach { value =>
+            val newNode = Some(Node(value))
+            latestAttachedNode.get.next = newNode
+            latestAttachedNode = newNode
+          }
+        case None =>
+      }
       linkedList
     }
 
