@@ -63,7 +63,7 @@ package object linkedlists {
      * @param value The value to insert.
      * @param index The index at which to insert. If negative or too large for the list, an error will be thrown.
      */
-    def insert(value: Int, index: Int): Unit = {
+    def insertAt(value: Int, index: Int): Unit = {
       val newNode = Node(value)
       if (index < 0) {
         throw new IndexOutOfBoundsException("Cannot insert to a negative index")
@@ -96,7 +96,7 @@ package object linkedlists {
      *
      * @param value The value to insert.
      */
-    def prepend(value: Int): Unit = insert(value, 0)
+    def prepend(value: Int): Unit = insertAt(value, 0)
 
     /***
      * Delete one element from the list at a given index.
@@ -107,7 +107,7 @@ package object linkedlists {
      *
      * @param index The index at which to delete a node.
      */
-    def delete(index: Int): Unit = {
+    def deleteAt(index: Int): Unit = {
       val throwIndexTooLarge = () => throw new IndexOutOfBoundsException(
         s"Cannot delete element at index $index as this is beyond the end of the linked list"
       )
@@ -128,6 +128,35 @@ package object linkedlists {
       }
     }
 
+    /***
+     * Delete all nodes from linked list where values meet the supplied predicate.
+     *
+     * Runs in O(n) as we must check all nodes in the list.
+     *
+     * @param predicate Function to evaluate whether a node should be removed based on its value.
+     */
+    def deleteWhere(predicate: Int => Boolean): Unit = {
+      head match {
+        case None =>
+          // (Do nothing when dealing with an empty list)
+        case Some(node) =>
+          // Fast-forward through list to find the first non-deletable item to serve as new head
+          // If none are found the list will be completely emptied out without having to do any repointing
+          var currentNodeOption: Option[Node] = Some(node)
+          while (currentNodeOption.exists(n => predicate(n.value))) {
+            currentNodeOption = currentNodeOption.flatMap(_.next)
+          }
+          head = currentNodeOption
+          // If we still have nodes left, repoint as needed
+          while(currentNodeOption.isDefined) {
+            val currentNode = currentNodeOption.get
+            if(currentNode.next.exists(n => predicate(n.value))) {
+              currentNode.next = currentNode.next.get.next
+            }
+            currentNodeOption = currentNode.next
+          }
+      }
+    }
   }
 
   object LinkedList {

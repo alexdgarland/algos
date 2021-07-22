@@ -30,67 +30,91 @@ class LinkedListBaseSpec extends AnyFlatSpec with should.Matchers {
 
   it should "allow inserting a value within list when populated" in {
     val linkedList = LinkedList.fromList(List(1, 2, 3))
-    linkedList.insert(4, 2)
+    linkedList.insertAt(4, 2)
     linkedList.toList should be(List(1, 2, 4, 3))
   }
 
   it should "allow inserting a value to start of list when populated" in {
     val linkedList = LinkedList.fromList(List(1, 2, 3))
-    linkedList.insert(4, 0)
+    linkedList.insertAt(4, 0)
     linkedList.toList should be(List(4, 1, 2, 3))
   }
 
   it should "allow inserting a value to end of list when populated" in {
     val linkedList = LinkedList.fromList(List(1, 2, 3))
-    linkedList.insert(4, 3)
+    linkedList.insertAt(4, 3)
     linkedList.toList should be(List(1, 2, 3, 4))
   }
 
   it should "allow inserting a value when not populated" in {
     val linkedList = LinkedList.fromList(List())
-    linkedList.insert(4, 0)
+    linkedList.insertAt(4, 0)
     linkedList.toList should be(List(4))
   }
 
   it should "not allow insertion of a value at a negative index" in {
     val linkedList = LinkedList.fromList(List(1, 2, 3))
     assertThrows[IndexOutOfBoundsException] {
-      linkedList.insert(4, -1)
+      linkedList.insertAt(4, -1)
     }
   }
 
   it should "not allow insertion of a value at an index beyond the end of a populated list" in {
     val linkedList = LinkedList.fromList(List(1, 2, 3))
     assertThrows[IndexOutOfBoundsException] {
-      linkedList.insert(4, 4)
+      linkedList.insertAt(4, 4)
     }
   }
 
   it should "not allow insertion of a value at an index beyond the end of an empty list" in {
     val linkedList = LinkedList.fromList(List())
     assertThrows[IndexOutOfBoundsException] {
-      linkedList.insert(4, 1)
+      linkedList.insertAt(4, 1)
     }
   }
 
   it should "allow deletion from a populated list" in {
     val linkedList = LinkedList.fromList(List(1, 2, 3))
-    linkedList.delete(1)
+    linkedList.deleteAt(1)
     linkedList.toList should be(List(1, 3))
   }
 
   it should "not allow deletion from an empty list" in {
     val linkedList = LinkedList()
     assertThrows[IndexOutOfBoundsException] {
-      linkedList.delete(0)
+      linkedList.deleteAt(0)
     }
   }
 
   it should "not allow deletion at an index beyond the end of a populated list" in {
     val linkedList = LinkedList.fromList(List(1, 2, 3))
     assertThrows[IndexOutOfBoundsException] {
-      linkedList.delete(3)
+      linkedList.deleteAt(3)
     }
+  }
+
+  it should "allow deletion based on a predicate where last item meets predicate" in {
+    val linkedList = LinkedList.fromList(List(1, 2, 3, 4))
+    linkedList.deleteWhere(i => i % 2 == 0)
+    linkedList.toList should be(List(1, 3))
+  }
+
+  it should "allow deletion based on a predicate where first item meets predicate" in {
+    val linkedList = LinkedList.fromList(List(1, 2, 3, 4))
+    linkedList.deleteWhere(i => i % 2 == 1)
+    linkedList.toList should be(List(2, 4))
+  }
+
+  it should "not alter list or fail when deletion predicate is not matched" in {
+    val linkedList = LinkedList.fromList(List(1, 2, 3, 4))
+    linkedList.deleteWhere(i => i > 10)
+    linkedList.toList should be(List(1, 2, 3, 4))
+  }
+
+  it should "allow emptying of list where all items meet predicate" in {
+    val linkedList = LinkedList.fromList(List(1, 2, 3, 4))
+    linkedList.deleteWhere(i => i < 5)
+    linkedList.toList should be(List())
   }
 
 }
