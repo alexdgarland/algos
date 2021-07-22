@@ -4,21 +4,21 @@ import scala.collection.mutable.ListBuffer
 
 package object linkedlists {
 
-  case class Node
+  case class Node[T]
   (
-    value: Int,
-    var next: Option[Node] = None
-    //  var prev: Option[Node] = None
+    value: T,
+    var next: Option[Node[T]] = None
+    //  var prev: Option[Node[T]] = None  // TODO - implement DoublyLinkedList, although possibly with a *separate* Node class
   )
 
-  case class LinkedList(var head: Option[Node] = None) {
+  case class LinkedList[T](var head: Option[Node[T]] = None) {
     /** *
      * Converter method mainly to make testing easier.
      *
      * @return
      */
-    def toList: List[Int] = {
-      val listBuffer = ListBuffer[Int]()
+    def toList: List[T] = {
+      val listBuffer = ListBuffer[T]()
       var currentNode = head
       while (currentNode.isDefined) {
         listBuffer.append(currentNode.get.value)
@@ -34,7 +34,7 @@ package object linkedlists {
      *
      * @param value The value to insert.
      */
-    def append(value: Int): Unit = {
+    def append(value: T): Unit = {
       val newNode = Node(value)
       head match {
         case None =>
@@ -63,7 +63,7 @@ package object linkedlists {
      * @param value The value to insert.
      * @param index The index at which to insert. If negative or too large for the list, an error will be thrown.
      */
-    def insertAt(value: Int, index: Int): Unit = {
+    def insertAt(value: T, index: Int): Unit = {
       val newNode = Node(value)
       if (index < 0) {
         throw new IndexOutOfBoundsException("Cannot insert to a negative index")
@@ -96,7 +96,7 @@ package object linkedlists {
      *
      * @param value The value to insert.
      */
-    def prepend(value: Int): Unit = insertAt(value, 0)
+    def prepend(value: T): Unit = insertAt(value, 0)
 
     /***
      * Delete one element from the list at a given index.
@@ -135,14 +135,14 @@ package object linkedlists {
      *
      * @param predicate Function to evaluate whether a node should be removed based on its value.
      */
-    def deleteWhere(predicate: Int => Boolean): Unit = {
+    def deleteWhere(predicate: T => Boolean): Unit = {
       head match {
         case None =>
           // (Do nothing when dealing with an empty list)
         case Some(node) =>
           // Fast-forward through list to find the first non-deletable item to serve as new head
           // If none are found the list will be completely emptied out without having to do any repointing
-          var currentNodeOption: Option[Node] = Some(node)
+          var currentNodeOption: Option[Node[T]] = Some(node)
           while (currentNodeOption.exists(n => predicate(n.value))) {
             currentNodeOption = currentNodeOption.flatMap(_.next)
           }
@@ -157,6 +157,27 @@ package object linkedlists {
           }
       }
     }
+
+    def map[TT](f: T => TT): LinkedList[TT] = {
+      val mappedList = LinkedList[TT]()
+      head match {
+        case None =>
+          // Do nothing further
+        case Some(headNode) =>
+          val mappedHeadNode = Node(f(headNode.value))
+          mappedList.head = Some(mappedHeadNode)
+          var currentSourceNode: Option[Node[T]] = headNode.next
+          var latestAttachedMappedNode: Node[TT] = mappedHeadNode
+          while(currentSourceNode.isDefined) {
+            val nextMappedNode = Node(f(currentSourceNode.get.value))
+            latestAttachedMappedNode.next = Some(nextMappedNode)
+            latestAttachedMappedNode = nextMappedNode
+            currentSourceNode = currentSourceNode.get.next
+          }
+      }
+      mappedList
+    }
+
   }
 
   object LinkedList {
@@ -173,7 +194,7 @@ package object linkedlists {
      * @param list Scala list to convert to a linked list
      * @return
      */
-    def fromList(list: List[Int]): LinkedList = {
+    def fromList[T](list: List[T]): LinkedList[T] = {
       val nodes = list.map(Node(_))
       (1 until nodes.length).foreach { i => nodes(i-1).next = Some(nodes(i)) }
       LinkedList(nodes.headOption)

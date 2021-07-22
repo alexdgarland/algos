@@ -23,7 +23,7 @@ class LinkedListBaseSpec extends AnyFlatSpec with should.Matchers {
   }
 
   it should "allow appending a value when not populated" in {
-    val linkedList = LinkedList.fromList(List())
+    val linkedList = LinkedList.fromList[Int](List())
     linkedList.append(4)
     linkedList.toList should be(List(4))
   }
@@ -47,7 +47,7 @@ class LinkedListBaseSpec extends AnyFlatSpec with should.Matchers {
   }
 
   it should "allow inserting a value when not populated" in {
-    val linkedList = LinkedList.fromList(List())
+    val linkedList = LinkedList.fromList[Int](List())
     linkedList.insertAt(4, 0)
     linkedList.toList should be(List(4))
   }
@@ -67,7 +67,7 @@ class LinkedListBaseSpec extends AnyFlatSpec with should.Matchers {
   }
 
   it should "not allow insertion of a value at an index beyond the end of an empty list" in {
-    val linkedList = LinkedList.fromList(List())
+    val linkedList = LinkedList.fromList[Int](List())
     assertThrows[IndexOutOfBoundsException] {
       linkedList.insertAt(4, 1)
     }
@@ -115,6 +115,14 @@ class LinkedListBaseSpec extends AnyFlatSpec with should.Matchers {
     val linkedList = LinkedList.fromList(List(1, 2, 3, 4))
     linkedList.deleteWhere(i => i < 5)
     linkedList.toList should be(List())
+  }
+
+  it should "allowing mapping a function over a populated list" in {
+    LinkedList.fromList(List(1, 2, 3)).map(i => s"Number $i").toList should be(List("Number 1", "Number 2", "Number 3"))
+  }
+
+  it should "allowing mapping a function over an empty list" in {
+    LinkedList[Int]().map(i => s"Number $i").toList should be(List())
   }
 
 }
