@@ -1,6 +1,6 @@
 package crackingthecodinginterview
 
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.{ListBuffer, Map => MutableMap}
 
 package object linkedlists {
 
@@ -176,6 +176,36 @@ package object linkedlists {
           }
       }
       mappedList
+    }
+
+    /***
+     * Remove all duplicate values from the list in O(n), keeping track of what values we've already seen using a map.
+     *
+     * The map adds worst-case space complexity of O(n), it will be smaller in as far as there are duplicate values.
+     */
+    def deduplicate(): Unit = {
+      head match {
+        case None =>
+          // Do nothing further
+        case Some(headNode) =>
+          val seenValues = MutableMap[T, Boolean]()
+          var previousNodeOption: Option[Node[T]] = Some(headNode)
+          // Loop through each element in the list (so linear-time)
+          while(previousNodeOption.flatMap(_.next).isDefined) {
+            val previousNode = previousNodeOption.get
+            val nextNode = previousNode.next.get
+            seenValues.put(previousNode.value, true)
+            // Either way this if statement branches, we advance one position linearly towards the end
+            if (seenValues.contains(nextNode.value)) {
+              // Remove a node (keep previous the same - the end still gets closer!)
+              previousNode.next = nextNode.next
+            }
+            else {
+              // If we're not removing a node, advance the "previous" node so we keep moving forward
+              previousNodeOption = previousNode.next
+            }
+          }
+      }
     }
 
   }

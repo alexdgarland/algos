@@ -2,7 +2,6 @@ package crackingthecodinginterview.linkedlists
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
-import org.scalatest.Assertions.assertThrows
 
 class LinkedListBaseSpec extends AnyFlatSpec with should.Matchers {
 
@@ -123,6 +122,12 @@ class LinkedListBaseSpec extends AnyFlatSpec with should.Matchers {
 
   it should "allowing mapping a function over an empty list" in {
     LinkedList[Int]().map(i => s"Number $i").toList should be(List())
+  }
+
+  it should "allow deduplication" in {
+    val linkedList = LinkedList.fromList(List(1, 1, 2, 3, 4, 4, 4, 2, 5, 5, 3, 6, 6, 7))
+    linkedList.deduplicate()
+    linkedList.toList should be(List(1, 2, 3, 4, 5, 6, 7))
   }
 
 }
