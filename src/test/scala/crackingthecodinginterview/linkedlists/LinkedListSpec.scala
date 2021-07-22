@@ -3,7 +3,7 @@ package crackingthecodinginterview.linkedlists
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
-class LinkedListBaseSpec extends AnyFlatSpec with should.Matchers {
+class LinkedListSpec extends AnyFlatSpec with should.Matchers {
 
   "LinkedList" should "be convertible from and to a Scala list when populated" in {
     val scalaList = List(1, 2, 3, 4, 5, 6)
