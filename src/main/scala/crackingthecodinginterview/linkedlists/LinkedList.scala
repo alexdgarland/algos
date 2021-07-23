@@ -3,6 +3,7 @@ package crackingthecodinginterview.linkedlists
 import scala.collection.mutable.{ListBuffer, Map => MutableMap}
 
 case class LinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) {
+
   /** *
    * Converter method mainly to make testing easier.
    *
