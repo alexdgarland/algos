@@ -7,12 +7,12 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
 
   "DoublyLinkedList" should "be convertible from and to a Scala list when populated" in {
     val scalaList = List(1, 2, 3, 4, 5, 6)
-    DoublyLinkedList.fromList(scalaList).toListForward should be(scalaList)
+    DoublyLinkedList.fromList(scalaList).toList() should be(scalaList)
   }
 
   it should "be convertible from and to a Scala list when empty" in {
     val scalaList = List()
-    DoublyLinkedList.fromList(scalaList).toListForward should be(scalaList)
+    DoublyLinkedList.fromList(scalaList).toList() should be(scalaList)
   }
 
   it should "be convertible to a reversed Scala list when populated" in {
@@ -114,28 +114,28 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
   it should "allow deletion based on a predicate where last item meets predicate" in {
     val linkedList = DoublyLinkedList.fromList(List(1, 2, 3, 4))
     linkedList.deleteWhere(i => i % 2 == 0)
-    linkedList.toListForward should be(List(1, 3))
+    linkedList.toList() should be(List(1, 3))
     linkedList.toListReversed should be(List(3, 1))
   }
 
   it should "allow deletion based on a predicate where first item meets predicate" in {
     val linkedList = DoublyLinkedList.fromList(List(1, 2, 3, 4))
     linkedList.deleteWhere(i => i % 2 == 1)
-    linkedList.toListForward should be(List(2, 4))
+    linkedList.toList() should be(List(2, 4))
     linkedList.toListReversed should be(List(4, 2))
   }
 
   it should "not alter list or fail when deletion predicate is not matched" in {
     val linkedList = DoublyLinkedList.fromList(List(1, 2, 3, 4))
     linkedList.deleteWhere(i => i > 10)
-    linkedList.toListForward should be(List(1, 2, 3, 4))
+    linkedList.toList() should be(List(1, 2, 3, 4))
     linkedList.toListReversed should be(List(4, 3, 2, 1))
   }
 
   it should "allow emptying of list where all items meet predicate" in {
     val linkedList = DoublyLinkedList.fromList(List(1, 2, 3, 4))
     linkedList.deleteWhere(i => i < 5)
-    linkedList.toListForward should be(List())
+    linkedList.toList() should be(List())
     linkedList.toListReversed should be(List())
   }
 

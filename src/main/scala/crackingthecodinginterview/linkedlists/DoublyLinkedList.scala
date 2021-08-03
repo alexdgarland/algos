@@ -12,23 +12,7 @@ case class DoublyLinkedList[T]
 (
   var head: Option[DoublyLinkedNode[T]] = None,
   var tail: Option[DoublyLinkedNode[T]] = None
-) {
-
-  private def toList
-  (
-    start: Option[DoublyLinkedNode[T]],
-    move: DoublyLinkedNode[T] => Option[DoublyLinkedNode[T]]
-  ): List[T] = {
-    val listBuffer = ListBuffer[T]()
-    var currentNode = start
-    while (currentNode.isDefined) {
-      listBuffer.append(currentNode.get.value)
-      currentNode = currentNode.flatMap(move(_))
-    }
-    listBuffer.toList
-  }
-
-  def toListForward: List[T] = toList(head, node => node.next)
+) extends LinkedList[T, DoublyLinkedNode[T]] {
 
   def toListReversed: List[T] = toList(tail, node => node.prev)
 
