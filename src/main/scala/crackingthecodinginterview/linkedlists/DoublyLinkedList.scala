@@ -16,48 +16,26 @@ case class DoublyLinkedList[T]
 
   def toListReversed: List[T] = toList(tail, node => node.prev)
 
-  /***
-   * Delete all nodes from linked list where values meet the supplied predicate.
-   *
-   * Runs in O(n) as we must check all nodes in the list.
-   *
-   * @param predicate Function to evaluate whether a node should be removed based on its value.
-   */
   def deleteWhere(predicate: T => Boolean): Unit = {
-    // TODO - this duplicates quite a lot of code from the singly-linked version (with some additions)
-    //  so at some point might be worth seeing how much can be factored out to shared.
-    head match {
-      case None =>
-      // (Do nothing when dealing with an empty list)
-      case Some(node) =>
-        // Fast-forward through list to find the first non-deletable item to serve as new head
-        // If none are found the list will be completely emptied out without having to do any repointing
-        var currentNodeOption: Option[DoublyLinkedNode[T]] = Some(node)
-        while (currentNodeOption.exists(n => predicate(n.value))) {
-          currentNodeOption = currentNodeOption.flatMap(_.next)
-        }
-        head = currentNodeOption
-        tail = currentNodeOption
-        currentNodeOption.foreach(_.prev = None)
-        // If we still have nodes left, repoint as needed
-        while(currentNodeOption.isDefined) {
-          val currentNode = currentNodeOption.get
-          if(currentNode.next.exists(n => predicate(n.value))) {
-            val skipToNode = currentNode.next.get.next
-            currentNode.next = skipToNode
-            skipToNode match {
-              case Some(node) =>
-                node.prev = Some(currentNode)
-              case None =>
-            }
-          }
-          currentNode.next match {
-            case Some(node) => tail = Some(node)
-            case None =>
-          }
-          currentNodeOption = currentNode.next
-        }
+    val initialAssigner = (currentNodeOption: Option[DoublyLinkedNode[T]]) => {
+      currentNodeOption.foreach(_.prev = None)
+      head = currentNodeOption
+      tail = currentNodeOption
     }
+    val nodeSkipper = (currentNode: DoublyLinkedNode[T]) => {
+      val skipToNode = currentNode.next.get.next
+      currentNode.next = skipToNode
+      skipToNode match {
+        case Some(node) =>
+          node.prev = Some(currentNode)
+        case None =>
+      }
+    }
+    val tailAssigner = (currentNode: DoublyLinkedNode[T]) => currentNode.next match {
+      case Some(node) => tail = Some(node)
+      case None =>
+    }
+    LinkedList.deleteWhere(this, predicate, initialAssigner, nodeSkipper, tailAssigner)
   }
 
 }

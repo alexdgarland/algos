@@ -105,34 +105,11 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
     }
   }
 
-  /***
-   * Delete all nodes from linked list where values meet the supplied predicate.
-   *
-   * Runs in O(n) as we must check all nodes in the list.
-   *
-   * @param predicate Function to evaluate whether a node should be removed based on its value.
-   */
   def deleteWhere(predicate: T => Boolean): Unit = {
-    head match {
-      case None =>
-      // (Do nothing when dealing with an empty list)
-      case Some(node) =>
-        // Fast-forward through list to find the first non-deletable item to serve as new head
-        // If none are found the list will be completely emptied out without having to do any repointing
-        var currentNodeOption: Option[SinglyLinkedNode[T]] = Some(node)
-        while (currentNodeOption.exists(n => predicate(n.value))) {
-          currentNodeOption = currentNodeOption.flatMap(_.next)
-        }
-        head = currentNodeOption
-        // If we still have nodes left, repoint as needed
-        while(currentNodeOption.isDefined) {
-          val currentNode = currentNodeOption.get
-          if(currentNode.next.exists(n => predicate(n.value))) {
-            currentNode.next = currentNode.next.get.next
-          }
-          currentNodeOption = currentNode.next
-        }
-    }
+    val initialAssigner = (currentNodeOption: Option[SinglyLinkedNode[T]]) => head = currentNodeOption
+    val nodeSkipper = (currentNode: SinglyLinkedNode[T]) => currentNode.next = currentNode.next.get.next
+    val tailAssigner = (_: SinglyLinkedNode[T]) => ()
+    LinkedList.deleteWhere(this, predicate, initialAssigner, nodeSkipper, tailAssigner)
   }
 
   def map[TT](f: T => TT): SinglyLinkedList[TT] = {
