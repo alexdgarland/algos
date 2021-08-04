@@ -1,7 +1,5 @@
 package crackingthecodinginterview.linkedlists
 
-import scala.collection.mutable.ListBuffer
-
 /***
  *
  * @param head First item in the list (may be null if list is empty).
@@ -16,28 +14,32 @@ case class DoublyLinkedList[T]
 
   def toListReversed: List[T] = toList(tail, node => node.prev)
 
-  def deleteWhere(predicate: T => Boolean): Unit = {
-    val initialAssigner = (currentNodeOption: Option[DoublyLinkedNode[T]]) => {
-      currentNodeOption.foreach(_.prev = None)
-      head = currentNodeOption
-      tail = currentNodeOption
+  private val whereDeleter = new PredicateBasedNodeDeleter[T, DoublyLinkedNode[T], DoublyLinkedList[T]](this) {
+    override protected def initialAssign(firstRetainedNodeOption: Option[DoublyLinkedNode[T]]): Unit = {
+      firstRetainedNodeOption.foreach(_.prev = None)
+      list.head = firstRetainedNodeOption
+      list.tail = firstRetainedNodeOption
     }
-    val nodeSkipper = (currentNode: DoublyLinkedNode[T]) => {
-      val skipToNode = currentNode.next.get.next
-      currentNode.next = skipToNode
+
+    override protected def skipNode(nodeBeforeSkippable: DoublyLinkedNode[T]): Unit = {
+      val skipToNode = nodeBeforeSkippable.next.get.next
+      nodeBeforeSkippable.next = skipToNode
       skipToNode match {
         case Some(node) =>
-          node.prev = Some(currentNode)
+          node.prev = Some(nodeBeforeSkippable)
         case None =>
       }
     }
-    val tailAssigner = (currentNode: DoublyLinkedNode[T]) => currentNode.next match {
-      case Some(node) => tail = Some(node)
-      case None =>
+
+    override protected def assignTail(potentialTailNode: DoublyLinkedNode[T]): Unit = {
+      potentialTailNode.next match {
+        case Some(node) => list.tail = Some(node)
+        case None =>
+      }
     }
-    LinkedList.deleteWhere(this, predicate, initialAssigner, nodeSkipper, tailAssigner)
   }
 
+  def deleteWhere(predicate: T => Boolean): Unit = whereDeleter.deleteWhere(predicate)
 }
 
 object DoublyLinkedList {

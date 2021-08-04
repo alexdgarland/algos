@@ -1,6 +1,6 @@
 package crackingthecodinginterview.linkedlists
 
-import scala.collection.mutable.{ListBuffer, Map => MutableMap}
+import scala.collection.mutable.{Map => MutableMap}
 
 case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) extends LinkedList[T, SinglyLinkedNode[T]] {
 
@@ -105,12 +105,17 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
     }
   }
 
-  def deleteWhere(predicate: T => Boolean): Unit = {
-    val initialAssigner = (currentNodeOption: Option[SinglyLinkedNode[T]]) => head = currentNodeOption
-    val nodeSkipper = (currentNode: SinglyLinkedNode[T]) => currentNode.next = currentNode.next.get.next
-    val tailAssigner = (_: SinglyLinkedNode[T]) => ()
-    LinkedList.deleteWhere(this, predicate, initialAssigner, nodeSkipper, tailAssigner)
+  private val whereDeleter = new PredicateBasedNodeDeleter[T, SinglyLinkedNode[T], SinglyLinkedList[T]](this) {
+    override protected def initialAssign(firstRetainedNodeOption: Option[SinglyLinkedNode[T]]): Unit =
+      list.head = firstRetainedNodeOption
+
+    override protected def skipNode(nodeBeforeSkippable: SinglyLinkedNode[T]): Unit =
+      nodeBeforeSkippable.next = nodeBeforeSkippable.next.get.next
+
+    override protected def assignTail(potentialTailNode: SinglyLinkedNode[T]): Unit = ()
   }
+
+  def deleteWhere(predicate: T => Boolean): Unit = whereDeleter.deleteWhere(predicate)
 
   def map[TT](f: T => TT): SinglyLinkedList[TT] = {
     val mappedList = SinglyLinkedList[TT]()
