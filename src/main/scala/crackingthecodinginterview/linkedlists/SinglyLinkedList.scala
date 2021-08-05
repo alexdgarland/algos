@@ -12,18 +12,13 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
    * @param value The value to insert.
    */
   def append(value: T): Unit = {
-    val newNode = SinglyLinkedNode(value)
+    val newNode = Some(SinglyLinkedNode(value))
     head match {
-      case None =>
-        head = Some(newNode)
+      case None => head = newNode
       case Some(existingNode) =>
         var currentNode = existingNode
-        // Iterate through to the last node -
-        // this pattern seems like it might benefit from being abstracted out (recursively?) at some point
-        while (currentNode.next.isDefined) {
-          currentNode = currentNode.next.get
-        }
-        currentNode.next = Some(newNode)
+        while (currentNode.next.isDefined) { currentNode = currentNode.next.get }
+        currentNode.next = newNode
     }
   }
 
@@ -41,39 +36,23 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
    * @param index The index at which to insert. If negative or too large for the list, an error will be thrown.
    */
   def insertAt(value: T, index: Int): Unit = {
-    val newNode = SinglyLinkedNode(value)
-    if (index < 0) {
-      throw new IndexOutOfBoundsException("Cannot insert to a negative index")
-    }
-    else if (index == 0) {
-      newNode.next = head
-      head = Some(newNode)
-    }
+    if (index < 0) { throw new IndexOutOfBoundsException("Cannot insert to a negative index") }
+    else if (index == 0) { prepend(value) }
     else {
-      val throwIndexTooLarge = () =>
-        throw new IndexOutOfBoundsException(s"Cannot insert at index $index as existing list is too short")
+      val throwIndexTooLarge = () => throw new IndexOutOfBoundsException(
+        s"Cannot insert at index $index as existing list is too short"
+      )
       head match {
-        case None =>
-          throwIndexTooLarge()
+        case None => throwIndexTooLarge()
         case Some(node) =>
           var beforeNode = node
-          (1 until index).foreach { _ =>
-            beforeNode = beforeNode.next.getOrElse(throwIndexTooLarge())
-          }
-          newNode.next = beforeNode.next
-          beforeNode.next = Some(newNode)
+          (1 until index).foreach { _ => beforeNode = beforeNode.next.getOrElse(throwIndexTooLarge()) }
+          beforeNode.next = Some(SinglyLinkedNode(value, beforeNode.next))
       }
     }
   }
 
-  /***
-   * Insert to the start of the list.
-   *
-   * This runs in constant time so should be default way to add data to linked list if ordering is not critical.
-   *
-   * @param value The value to insert.
-   */
-  def prepend(value: T): Unit = insertAt(value, 0)
+  def prepend(value: T): Unit = head = Some(SinglyLinkedNode(value, head))
 
   /***
    * Delete one element from the list at a given index.

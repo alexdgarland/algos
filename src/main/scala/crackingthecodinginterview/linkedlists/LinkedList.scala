@@ -26,6 +26,22 @@ trait LinkedList[T, N <: ListNode[T, _]] {
   }
 
   /***
+   * Insert to the start of the list.
+   *
+   * This runs in constant time so should be default way to add data to linked list if ordering is not critical.
+   *
+   * @param value The value to insert.
+   */
+  def prepend(value: T): Unit
+
+  /***
+   * Insert to end of list. Time complexity varies between implementations.
+   *
+   * @param value
+   */
+  def append(value: T): Unit
+
+  /***
    * Delete all nodes from linked list where values meet the supplied predicate.
    *
    * Runs in O(n) as we must check all nodes in the list.

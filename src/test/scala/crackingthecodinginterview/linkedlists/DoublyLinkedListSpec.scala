@@ -34,18 +34,18 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
     )
   }
 
-//  it should "allow appending a value when populated" in {
-//    val linkedList = LinkedList.fromList(List(1, 2, 3))
-//    linkedList.append(4)
-//    linkedList.toList should be(List(1, 2, 3, 4))
-//  }
-//
-//  it should "allow appending a value when not populated" in {
-//    val linkedList = LinkedList.fromList[Int](List())
-//    linkedList.append(4)
-//    linkedList.toList should be(List(4))
-//  }
-//
+  it should "allow appending a value when populated" in {
+    val linkedList = DoublyLinkedList.fromList(List(1, 2, 3))
+    linkedList.append(4)
+    linkedList.toList() should be(List(1, 2, 3, 4))
+  }
+
+  it should "allow appending a value when not populated" in {
+    val linkedList = DoublyLinkedList.fromList[Int](List())
+    linkedList.append(4)
+    linkedList.toList() should be(List(4))
+  }
+
 //  it should "allow inserting a value within list when populated" in {
 //    val linkedList = LinkedList.fromList(List(1, 2, 3))
 //    linkedList.insertAt(4, 2)
@@ -57,6 +57,12 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
 //    linkedList.insertAt(4, 0)
 //    linkedList.toList should be(List(4, 1, 2, 3))
 //  }
+//
+  it should "allow prepending a value to list when populated" in {
+    val linkedList = DoublyLinkedList.fromList(List(1, 2, 3))
+    linkedList.prepend(4)
+    linkedList.toList() should be(List(4, 1, 2, 3))
+  }
 //
 //  it should "allow inserting a value to end of list when populated" in {
 //    val linkedList = LinkedList.fromList(List(1, 2, 3))

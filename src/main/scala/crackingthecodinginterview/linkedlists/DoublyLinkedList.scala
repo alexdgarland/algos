@@ -40,6 +40,23 @@ case class DoublyLinkedList[T]
   }
 
   def deleteWhere(predicate: T => Boolean): Unit = whereDeleter.deleteWhere(predicate)
+
+  override def prepend(value: T): Unit = head = Some(DoublyLinkedNode(value, head))
+
+  /***
+   * Insert to end of list in constant time.
+   *
+   * @param value
+   */
+  override def append(value: T): Unit = {
+    val newNode = Some(DoublyLinkedNode(value, None, tail))
+    head match {
+      case None => head = newNode
+      case Some(_) => tail.foreach(_.next = newNode)
+    }
+    tail = newNode
+  }
+
 }
 
 object DoublyLinkedList {

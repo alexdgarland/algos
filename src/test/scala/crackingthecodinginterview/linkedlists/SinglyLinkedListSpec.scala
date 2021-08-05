@@ -39,6 +39,12 @@ class SinglyLinkedListSpec extends AnyFlatSpec with should.Matchers {
     linkedList.toList() should be(List(4, 1, 2, 3))
   }
 
+  it should "allow prepending a value to list when populated" in {
+    val linkedList = SinglyLinkedList.fromList(List(1, 2, 3))
+    linkedList.prepend(4)
+    linkedList.toList() should be(List(4, 1, 2, 3))
+  }
+
   it should "allow inserting a value to end of list when populated" in {
     val linkedList = SinglyLinkedList.fromList(List(1, 2, 3))
     linkedList.insertAt(4, 3)
