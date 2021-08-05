@@ -52,6 +52,14 @@ trait LinkedList[T, N <: ListNode[T, _]] {
 
 }
 
+/**
+ * Abstract class to handle shared implementation of deleteWhere.
+ *
+ * @param list List of type L to delete elements from.
+ * @tparam T Type of values.
+ * @tparam NN Type of list nodes (singly- or doubly-linked, plus value type).
+ * @tparam L Type of list (singly- or doubly-linked, plus value type).
+ */
 abstract class PredicateBasedNodeDeleter[T, NN <: ListNode[T, _], L <: LinkedList[T, NN]](protected val list: L) {
 
   protected def initialAssign(firstRetainedNodeOption: Option[NN]): Unit
