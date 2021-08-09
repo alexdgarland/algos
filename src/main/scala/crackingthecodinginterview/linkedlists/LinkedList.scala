@@ -2,7 +2,7 @@ package crackingthecodinginterview.linkedlists
 
 import scala.collection.mutable.ListBuffer
 
-trait LinkedList[T, N <: ListNode[T, _]] {
+trait LinkedList[T, N <: ListNode[T, _], +LL] {
 
   var head: Option[N]
 
@@ -50,6 +50,8 @@ trait LinkedList[T, N <: ListNode[T, _]] {
    */
   def deleteWhere(predicate: T => Boolean): Unit
 
+  def map[TT](f: T => TT): LL
+
 }
 
 /**
@@ -60,7 +62,7 @@ trait LinkedList[T, N <: ListNode[T, _]] {
  * @tparam NN Type of list nodes (singly- or doubly-linked, plus value type).
  * @tparam L Type of list (singly- or doubly-linked, plus value type).
  */
-abstract class PredicateBasedNodeDeleter[T, NN <: ListNode[T, _], L <: LinkedList[T, NN]](protected val list: L) {
+abstract class PredicateBasedNodeDeleter[T, NN <: ListNode[T, _], L <: LinkedList[T, NN, _]](protected val list: L) {
 
   protected def initialAssign(firstRetainedNodeOption: Option[NN]): Unit
 

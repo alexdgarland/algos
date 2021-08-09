@@ -145,14 +145,16 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
     linkedList.toListReversed should be(List())
   }
 
-//  it should "allowing mapping a function over a populated list" in {
-//    LinkedList.fromList(List(1, 2, 3)).map(i => s"Number $i").toList should be(List("Number 1", "Number 2", "Number 3"))
-//  }
-//
-//  it should "allowing mapping a function over an empty list" in {
-//    LinkedList[Int]().map(i => s"Number $i").toList should be(List())
-//  }
-//
+  it should "allowing mapping a function over a populated list" in {
+    val mappedList = DoublyLinkedList.fromList(List(1, 2, 3)).map(i => s"Number $i")
+    mappedList.toList() should be(List("Number 1", "Number 2", "Number 3"))
+    mappedList.toListReversed should be(List("Number 3", "Number 2", "Number 1"))
+  }
+
+  it should "allowing mapping a function over an empty list" in {
+    DoublyLinkedList[Int]().map(i => s"Number $i").toList() should be(List())
+  }
+
 //  it should "allow deduplication" in {
 //    val linkedList = LinkedList.fromList(List(1, 1, 2, 3, 4, 4, 4, 2, 5, 5, 3, 6, 6, 7))
 //    linkedList.deduplicate()

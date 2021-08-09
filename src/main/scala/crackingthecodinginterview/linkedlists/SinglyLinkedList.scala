@@ -2,7 +2,7 @@ package crackingthecodinginterview.linkedlists
 
 import scala.collection.mutable.{Map => MutableMap}
 
-case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) extends LinkedList[T, SinglyLinkedNode[T]] {
+case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) extends LinkedList[T, SinglyLinkedNode[T], SinglyLinkedList[_]] {
 
   /** *
    * Append a new value to the end of the linked-list.

@@ -10,7 +10,7 @@ case class DoublyLinkedList[T]
 (
   var head: Option[DoublyLinkedNode[T]] = None,
   var tail: Option[DoublyLinkedNode[T]] = None
-) extends LinkedList[T, DoublyLinkedNode[T]] {
+) extends LinkedList[T, DoublyLinkedNode[T], DoublyLinkedList[_]] {
 
   def toListReversed: List[T] = toList(tail, node => node.prev)
 
@@ -55,6 +55,27 @@ case class DoublyLinkedList[T]
       case Some(_) => tail.foreach(_.next = newNode)
     }
     tail = newNode
+  }
+
+  override def map[TT](f: T => TT): DoublyLinkedList[TT] = {
+    val mappedList = DoublyLinkedList[TT]()
+    head match {
+      case None =>
+      // Do nothing further
+      case Some(headNode) =>
+        val mappedHeadNode = DoublyLinkedNode(f(headNode.value))
+        mappedList.head = Some(mappedHeadNode)
+        var currentSourceNode: Option[DoublyLinkedNode[T]] = headNode.next
+        var latestAttachedMappedNode: DoublyLinkedNode[TT] = mappedHeadNode
+        while(currentSourceNode.isDefined) {
+          val nextMappedNode = DoublyLinkedNode(f(currentSourceNode.get.value), None, Some(latestAttachedMappedNode))
+          latestAttachedMappedNode.next = Some(nextMappedNode)
+          latestAttachedMappedNode = nextMappedNode
+          currentSourceNode = currentSourceNode.get.next
+        }
+        mappedList.tail = Some(latestAttachedMappedNode)
+    }
+    mappedList
   }
 
 }
