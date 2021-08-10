@@ -51,24 +51,11 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
   }
 
   def deleteAt(index: Int): Unit = {
-    val throwIndexTooLarge = () => throw new IndexOutOfBoundsException(
-      s"Cannot delete element at index $index as this is beyond the end of the linked list"
-    )
-    head match {
-      case None =>
-        throw new IndexOutOfBoundsException("Cannot delete from an empty linked list")
-      case Some(node) =>
-        var beforeNode = node
-        (1 until index).foreach { _ =>
-          beforeNode = beforeNode.next.getOrElse(throwIndexTooLarge())
-        }
-        beforeNode.next match {
-          case None =>
-            throwIndexTooLarge()
-          case Some(nodeToDelete) =>
-            beforeNode.next = nodeToDelete.next
-        }
-    }
+    new PositionalListNodeDeleter[T, SinglyLinkedNode[T], SinglyLinkedList[T]](this) {
+      override def deleteNode(beforeNode: SinglyLinkedNode[T], nodeToDelete: SinglyLinkedNode[T]): Unit = {
+        beforeNode.next = nodeToDelete.next
+      }
+    }.deleteAt(index)
   }
 
   /***

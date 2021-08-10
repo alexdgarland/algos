@@ -182,3 +182,29 @@ private[linkedlists] abstract class PositionalListInserter[T, N <: ListNode[T, _
   }
 
 }
+
+private[linkedlists] abstract class PositionalListNodeDeleter[T, N <: ListNode[T, _], L <: LinkedList[T, N, _]]
+(protected val list: L) {
+
+  def deleteNode(beforeNode: N, nodeToDelete: N): Unit
+
+  def deleteAt(index: Int) : Unit = {
+    val throwIndexTooLarge = () => throw new IndexOutOfBoundsException(
+      s"Cannot delete element at index $index as this is beyond the end of the linked list"
+    )
+    list.head match {
+      case None =>
+        throw new IndexOutOfBoundsException("Cannot delete from an empty linked list")
+      case Some(node) =>
+        var beforeNode = node
+        (1 until index).foreach { _ => beforeNode = beforeNode.next.getOrElse(throwIndexTooLarge()).asInstanceOf[N] }
+        beforeNode.next match {
+          case None =>
+            throwIndexTooLarge()
+          case Some(nodeToDelete) =>
+            deleteNode(beforeNode, nodeToDelete.asInstanceOf[N])
+        }
+    }
+  }
+
+}
