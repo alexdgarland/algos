@@ -22,19 +22,26 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
     }
   }
 
-  /***
-   * Insert a value to an arbitrary point in the list represented by a supplied index.
-   *
-   * Runs in O(i) where i is the value of the requested index -
-   * the largest value of that that can work is the size of the list at which point it's O(n)
-   * (either way it's linear).
-   *
-   * Inserting to the start of the list (index 0) is constant-time
-   * and as this is one of the main reasons to use a linked list, will expose it as a separate method as well.
-   *
-   * @param value The value to insert.
-   * @param index The index at which to insert. If negative or too large for the list, an error will be thrown.
-   */
+  def prepend(value: T): Unit = head = Some(SinglyLinkedNode(value, head))
+
+  def deleteWhere(predicate: T => Boolean): Unit = {
+    new PredicateBasedNodeDeleter[T, SinglyLinkedNode[T], SinglyLinkedList[T]](this) {
+      override protected def initialAssign(firstRetainedNodeOption: Option[SinglyLinkedNode[T]]): Unit =
+        list.head = firstRetainedNodeOption
+      override protected def skipNode(nodeBeforeSkippable: SinglyLinkedNode[T]): Unit =
+        nodeBeforeSkippable.next = nodeBeforeSkippable.next.get.next
+      override protected def assignTail(potentialTailNode: SinglyLinkedNode[T]): Unit = ()
+    }.deleteWhere(predicate)
+  }
+
+  def map[TT](f: T => TT): SinglyLinkedList[TT] = {
+    new ListMapper[T, SinglyLinkedNode[T], SinglyLinkedList[T], TT, SinglyLinkedNode[TT], SinglyLinkedList[TT]](this) {
+      override def newList(): SinglyLinkedList[TT] = SinglyLinkedList()
+      override def newNode(value: TT, previousNode: Option[SinglyLinkedNode[TT]]): SinglyLinkedNode[TT] = SinglyLinkedNode(value)
+      override def assignTail(node: SinglyLinkedNode[TT]): Unit = ()
+    }.map(f)
+  }
+
   def insertAt(value: T, index: Int): Unit = {
     if (index < 0) { throw new IndexOutOfBoundsException("Cannot insert to a negative index") }
     else if (index == 0) { prepend(value) }
@@ -51,8 +58,6 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
       }
     }
   }
-
-  def prepend(value: T): Unit = head = Some(SinglyLinkedNode(value, head))
 
   /***
    * Delete one element from the list at a given index.
@@ -82,24 +87,6 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
             beforeNode.next = nodeToDelete.next
         }
     }
-  }
-
-  def deleteWhere(predicate: T => Boolean): Unit = {
-    new PredicateBasedNodeDeleter[T, SinglyLinkedNode[T], SinglyLinkedList[T]](this) {
-      override protected def initialAssign(firstRetainedNodeOption: Option[SinglyLinkedNode[T]]): Unit =
-        list.head = firstRetainedNodeOption
-      override protected def skipNode(nodeBeforeSkippable: SinglyLinkedNode[T]): Unit =
-        nodeBeforeSkippable.next = nodeBeforeSkippable.next.get.next
-      override protected def assignTail(potentialTailNode: SinglyLinkedNode[T]): Unit = ()
-    }.deleteWhere(predicate)
-  }
-
-  def map[TT](f: T => TT): SinglyLinkedList[TT] = {
-    new ListMapper[T, SinglyLinkedNode[T], SinglyLinkedList[T], TT, SinglyLinkedNode[TT], SinglyLinkedList[TT]](this) {
-      override def newList(): SinglyLinkedList[TT] = SinglyLinkedList()
-      override def newNode(value: TT, previousNode: Option[SinglyLinkedNode[TT]]): SinglyLinkedNode[TT] = SinglyLinkedNode(value)
-      override def assignTail(node: SinglyLinkedNode[TT]): Unit = ()
-    }.map(f)
   }
 
   /***

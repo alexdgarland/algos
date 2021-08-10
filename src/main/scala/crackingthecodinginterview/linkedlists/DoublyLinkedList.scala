@@ -32,7 +32,12 @@ case class DoublyLinkedList[T]
     }.deleteWhere(predicate)
   }
 
-  override def prepend(value: T): Unit = head = Some(DoublyLinkedNode(value, head))
+  override def prepend(value: T): Unit = {
+    val newNode = Some(DoublyLinkedNode(value, head))
+    head.foreach(_.prev = newNode)
+    head = newNode
+    if (tail.isEmpty) { tail = newNode }
+  }
 
   /***
    * Insert to end of list in constant time.
@@ -55,6 +60,28 @@ case class DoublyLinkedList[T]
         DoublyLinkedNode(value, None, previousNode)
       override def assignTail(node: DoublyLinkedNode[TT]): Unit = mappedList.tail = Some(node)
     }.map(f)
+  }
+
+  override def insertAt(value: T, index: Int): Unit = {
+    if (index < 0) { throw new IndexOutOfBoundsException("Cannot insert to a negative index") }
+    else if (index == 0) { prepend(value) }
+    else {
+      val throwIndexTooLarge = () => throw new IndexOutOfBoundsException(
+        s"Cannot insert at index $index as existing list is too short"
+      )
+      head match {
+        case None => throwIndexTooLarge()
+        case Some(node) =>
+          var beforeNode = node
+          (1 until index).foreach { _ => beforeNode = beforeNode.next.getOrElse(throwIndexTooLarge()) }
+          val newNode = Some(DoublyLinkedNode(value, beforeNode.next, Some(beforeNode)))
+          beforeNode.next match {
+            case Some(node) => node.prev = newNode
+            case None => tail = newNode
+          }
+          beforeNode.next = newNode
+      }
+    }
   }
 
 }

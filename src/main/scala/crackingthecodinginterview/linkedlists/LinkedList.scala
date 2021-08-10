@@ -52,6 +52,21 @@ trait LinkedList[T, N <: ListNode[T, _], +LL] {
 
   def map[TT](f: T => TT): LL
 
+  /***
+   * Insert a value to an arbitrary point in the list represented by a supplied index.
+   *
+   * Runs in O(i) where i is the value of the requested index -
+   * the largest value of that that can work is the size of the list at which point it's O(n)
+   * (either way it's linear).
+   *
+   * Inserting to the start of the list (index 0) is constant-time and as this is one of the main reasons
+   * to use a linked list, this is explicitly provided as a separate prepend method.
+   *
+   * @param value The value to insert.
+   * @param index The index at which to insert. If negative or too large for the list, an error will be thrown.
+   */
+  def insertAt(value: T, index: Int): Unit
+
 }
 
 /**
