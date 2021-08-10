@@ -67,6 +67,17 @@ trait LinkedList[T, N <: ListNode[T, _], +LL] {
    */
   def insertAt(value: T, index: Int): Unit
 
+  /***
+   * Delete one element from the list at a given index.
+   *
+   * Runs in O(i) where i is the value of the requested index -
+   * the largest value of that that can work is the size of the list at which point it's O(n)
+   * (either way it's linear).
+   *
+   * @param index The index at which to delete a node.
+   */
+  def deleteAt(index: Int): Unit
+
 }
 
 /**
@@ -142,6 +153,32 @@ private[linkedlists] abstract class ListMapper[
         assignTail(latestAttachedMapNode)
     }
     mappedList
+  }
+
+}
+
+private[linkedlists] abstract class PositionalListInserter[T, N <: ListNode[T, _], L <: LinkedList[T, N, _]]
+(protected val list: L) {
+
+  def insertValue(value: T, beforeNode: N): Unit
+
+  def insertAt(value: T, index: Int): Unit = {
+    if (index < 0) {
+      throw new IndexOutOfBoundsException("Cannot insert to a negative index")
+    }
+    else if (index == 0) { list.prepend(value) }
+    else {
+      val throwIndexTooLarge = () => throw new IndexOutOfBoundsException(
+        s"Cannot insert at index $index as existing list is too short"
+      )
+      list.head match {
+        case None => throwIndexTooLarge()
+        case Some(node) =>
+          var beforeNode = node
+          (1 until index).foreach { _ => beforeNode = beforeNode.next.getOrElse(throwIndexTooLarge()).asInstanceOf[N] }
+          insertValue(value, beforeNode)
+      }
+    }
   }
 
 }

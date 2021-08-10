@@ -63,24 +63,46 @@ case class DoublyLinkedList[T]
   }
 
   override def insertAt(value: T, index: Int): Unit = {
-    if (index < 0) { throw new IndexOutOfBoundsException("Cannot insert to a negative index") }
-    else if (index == 0) { prepend(value) }
-    else {
-      val throwIndexTooLarge = () => throw new IndexOutOfBoundsException(
-        s"Cannot insert at index $index as existing list is too short"
-      )
-      head match {
-        case None => throwIndexTooLarge()
-        case Some(node) =>
-          var beforeNode = node
-          (1 until index).foreach { _ => beforeNode = beforeNode.next.getOrElse(throwIndexTooLarge()) }
-          val newNode = Some(DoublyLinkedNode(value, beforeNode.next, Some(beforeNode)))
-          beforeNode.next match {
-            case Some(node) => node.prev = newNode
-            case None => tail = newNode
-          }
-          beforeNode.next = newNode
+    new PositionalListInserter[T, DoublyLinkedNode[T], DoublyLinkedList[T]](this) {
+      override def insertValue(value: T, beforeNode: DoublyLinkedNode[T]): Unit = {
+        val newNode = Some(DoublyLinkedNode(value, beforeNode.next, Some(beforeNode)))
+        beforeNode.next match {
+          case Some(node) => node.prev = newNode
+          case None => tail = newNode
+        }
+        beforeNode.next = newNode
       }
+    }.insertAt(value, index)
+  }
+
+  /**   *
+   * Delete one element from the list at a given index.
+   *
+   * Runs in O(i) where i is the value of the requested index -
+   * the largest value of that that can work is the size of the list at which point it's O(n)
+   * (either way it's linear).
+   *
+   * @param index The index at which to delete a node.
+   */
+  override def deleteAt(index: Int): Unit = {
+    val throwIndexTooLarge = () => throw new IndexOutOfBoundsException(
+      s"Cannot delete element at index $index as this is beyond the end of the linked list"
+    )
+    head match {
+      case None =>
+        throw new IndexOutOfBoundsException("Cannot delete from an empty linked list")
+      case Some(node) =>
+        var beforeNode = node
+        (1 until index).foreach { _ =>
+          beforeNode = beforeNode.next.getOrElse(throwIndexTooLarge())
+        }
+        beforeNode.next match {
+          case None =>
+            throwIndexTooLarge()
+          case Some(nodeToDelete) =>
+            beforeNode.next = nodeToDelete.next
+            beforeNode.next.foreach(_.prev = Some(beforeNode))
+        }
     }
   }
 

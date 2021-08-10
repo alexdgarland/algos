@@ -43,31 +43,13 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
   }
 
   def insertAt(value: T, index: Int): Unit = {
-    if (index < 0) { throw new IndexOutOfBoundsException("Cannot insert to a negative index") }
-    else if (index == 0) { prepend(value) }
-    else {
-      val throwIndexTooLarge = () => throw new IndexOutOfBoundsException(
-        s"Cannot insert at index $index as existing list is too short"
-      )
-      head match {
-        case None => throwIndexTooLarge()
-        case Some(node) =>
-          var beforeNode = node
-          (1 until index).foreach { _ => beforeNode = beforeNode.next.getOrElse(throwIndexTooLarge()) }
-          beforeNode.next = Some(SinglyLinkedNode(value, beforeNode.next))
+    new PositionalListInserter[T, SinglyLinkedNode[T], SinglyLinkedList[T]](this) {
+      override def insertValue(value: T, beforeNode: SinglyLinkedNode[T]): Unit = {
+        beforeNode.next = Some(SinglyLinkedNode(value, beforeNode.next))
       }
-    }
+    }.insertAt(value, index)
   }
 
-  /***
-   * Delete one element from the list at a given index.
-   *
-   * Runs in O(i) where i is the value of the requested index -
-   * the largest value of that that can work is the size of the list at which point it's O(n)
-   * (either way it's linear).
-   *
-   * @param index The index at which to delete a node.
-   */
   def deleteAt(index: Int): Unit = {
     val throwIndexTooLarge = () => throw new IndexOutOfBoundsException(
       s"Cannot delete element at index $index as this is beyond the end of the linked list"
