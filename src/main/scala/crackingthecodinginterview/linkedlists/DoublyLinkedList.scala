@@ -14,39 +14,30 @@ case class DoublyLinkedList[T]
 
   def toListReversed: List[T] = toList(tail, node => node.prev)
 
-  private val whereDeleter = new PredicateBasedNodeDeleter[T, DoublyLinkedNode[T], DoublyLinkedList[T]](this) {
-    override protected def initialAssign(firstRetainedNodeOption: Option[DoublyLinkedNode[T]]): Unit = {
-      firstRetainedNodeOption.foreach(_.prev = None)
-      list.head = firstRetainedNodeOption
-      list.tail = firstRetainedNodeOption
-    }
-
-    override protected def skipNode(nodeBeforeSkippable: DoublyLinkedNode[T]): Unit = {
-      val skipToNode = nodeBeforeSkippable.next.get.next
-      nodeBeforeSkippable.next = skipToNode
-      skipToNode match {
-        case Some(node) =>
-          node.prev = Some(nodeBeforeSkippable)
-        case None =>
+  def deleteWhere(predicate: T => Boolean): Unit = {
+    new PredicateBasedNodeDeleter[T, DoublyLinkedNode[T], DoublyLinkedList[T]](this) {
+      override protected def initialAssign(firstRetainedNodeOption: Option[DoublyLinkedNode[T]]): Unit = {
+        firstRetainedNodeOption.foreach(_.prev = None)
+        list.head = firstRetainedNodeOption
+        list.tail = firstRetainedNodeOption
       }
-    }
-
-    override protected def assignTail(potentialTailNode: DoublyLinkedNode[T]): Unit = {
-      potentialTailNode.next match {
-        case Some(node) => list.tail = Some(node)
-        case None =>
+      override protected def skipNode(nodeBeforeSkippable: DoublyLinkedNode[T]): Unit = {
+        val skipToNode = nodeBeforeSkippable.next.get.next
+        nodeBeforeSkippable.next = skipToNode
+        skipToNode.foreach(_.prev = Some(nodeBeforeSkippable))
       }
-    }
+      override protected def assignTail(potentialTailNode: DoublyLinkedNode[T]): Unit = {
+        potentialTailNode.next.foreach(node => list.tail = Some(node))
+      }
+    }.deleteWhere(predicate)
   }
-
-  def deleteWhere(predicate: T => Boolean): Unit = whereDeleter.deleteWhere(predicate)
 
   override def prepend(value: T): Unit = head = Some(DoublyLinkedNode(value, head))
 
   /***
    * Insert to end of list in constant time.
    *
-   * @param value
+   * @param value Value to append to list.
    */
   override def append(value: T): Unit = {
     val newNode = Some(DoublyLinkedNode(value, None, tail))
@@ -58,24 +49,12 @@ case class DoublyLinkedList[T]
   }
 
   override def map[TT](f: T => TT): DoublyLinkedList[TT] = {
-    val mappedList = DoublyLinkedList[TT]()
-    head match {
-      case None =>
-      // Do nothing further
-      case Some(headNode) =>
-        val mappedHeadNode = DoublyLinkedNode(f(headNode.value))
-        mappedList.head = Some(mappedHeadNode)
-        var currentSourceNode: Option[DoublyLinkedNode[T]] = headNode.next
-        var latestAttachedMappedNode: DoublyLinkedNode[TT] = mappedHeadNode
-        while(currentSourceNode.isDefined) {
-          val nextMappedNode = DoublyLinkedNode(f(currentSourceNode.get.value), None, Some(latestAttachedMappedNode))
-          latestAttachedMappedNode.next = Some(nextMappedNode)
-          latestAttachedMappedNode = nextMappedNode
-          currentSourceNode = currentSourceNode.get.next
-        }
-        mappedList.tail = Some(latestAttachedMappedNode)
-    }
-    mappedList
+    new ListMapper[T, DoublyLinkedNode[T], DoublyLinkedList[T], TT, DoublyLinkedNode[TT], DoublyLinkedList[TT]](this) {
+      override def newList(): DoublyLinkedList[TT] = DoublyLinkedList()
+      override def newNode(value: TT, previousNode: Option[DoublyLinkedNode[TT]]): DoublyLinkedNode[TT] =
+        DoublyLinkedNode(value, None, previousNode)
+      override def assignTail(node: DoublyLinkedNode[TT]): Unit = mappedList.tail = Some(node)
+    }.map(f)
   }
 
 }

@@ -84,36 +84,22 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
     }
   }
 
-  private val whereDeleter = new PredicateBasedNodeDeleter[T, SinglyLinkedNode[T], SinglyLinkedList[T]](this) {
-    override protected def initialAssign(firstRetainedNodeOption: Option[SinglyLinkedNode[T]]): Unit =
-      list.head = firstRetainedNodeOption
-
-    override protected def skipNode(nodeBeforeSkippable: SinglyLinkedNode[T]): Unit =
-      nodeBeforeSkippable.next = nodeBeforeSkippable.next.get.next
-
-    override protected def assignTail(potentialTailNode: SinglyLinkedNode[T]): Unit = ()
+  def deleteWhere(predicate: T => Boolean): Unit = {
+    new PredicateBasedNodeDeleter[T, SinglyLinkedNode[T], SinglyLinkedList[T]](this) {
+      override protected def initialAssign(firstRetainedNodeOption: Option[SinglyLinkedNode[T]]): Unit =
+        list.head = firstRetainedNodeOption
+      override protected def skipNode(nodeBeforeSkippable: SinglyLinkedNode[T]): Unit =
+        nodeBeforeSkippable.next = nodeBeforeSkippable.next.get.next
+      override protected def assignTail(potentialTailNode: SinglyLinkedNode[T]): Unit = ()
+    }.deleteWhere(predicate)
   }
 
-  def deleteWhere(predicate: T => Boolean): Unit = whereDeleter.deleteWhere(predicate)
-
   def map[TT](f: T => TT): SinglyLinkedList[TT] = {
-    val mappedList = SinglyLinkedList[TT]()
-    head match {
-      case None =>
-      // Do nothing further
-      case Some(headNode) =>
-        val mappedHeadNode = SinglyLinkedNode(f(headNode.value))
-        mappedList.head = Some(mappedHeadNode)
-        var currentSourceNode: Option[SinglyLinkedNode[T]] = headNode.next
-        var latestAttachedMappedNode: SinglyLinkedNode[TT] = mappedHeadNode
-        while(currentSourceNode.isDefined) {
-          val nextMappedNode = SinglyLinkedNode(f(currentSourceNode.get.value))
-          latestAttachedMappedNode.next = Some(nextMappedNode)
-          latestAttachedMappedNode = nextMappedNode
-          currentSourceNode = currentSourceNode.get.next
-        }
-    }
-    mappedList
+    new ListMapper[T, SinglyLinkedNode[T], SinglyLinkedList[T], TT, SinglyLinkedNode[TT], SinglyLinkedList[TT]](this) {
+      override def newList(): SinglyLinkedList[TT] = SinglyLinkedList()
+      override def newNode(value: TT, previousNode: Option[SinglyLinkedNode[TT]]): SinglyLinkedNode[TT] = SinglyLinkedNode(value)
+      override def assignTail(node: SinglyLinkedNode[TT]): Unit = ()
+    }.map(f)
   }
 
   /***

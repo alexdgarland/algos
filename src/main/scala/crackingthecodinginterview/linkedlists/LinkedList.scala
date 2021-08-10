@@ -62,7 +62,8 @@ trait LinkedList[T, N <: ListNode[T, _], +LL] {
  * @tparam NN Type of list nodes (singly- or doubly-linked, plus value type).
  * @tparam L Type of list (singly- or doubly-linked, plus value type).
  */
-abstract class PredicateBasedNodeDeleter[T, NN <: ListNode[T, _], L <: LinkedList[T, NN, _]](protected val list: L) {
+private[linkedlists] abstract class PredicateBasedNodeDeleter[T, NN <: ListNode[T, _], L <: LinkedList[T, NN, _]]
+(protected val list: L) {
 
   protected def initialAssign(firstRetainedNodeOption: Option[NN]): Unit
 
@@ -92,6 +93,40 @@ abstract class PredicateBasedNodeDeleter[T, NN <: ListNode[T, _], L <: LinkedLis
           currentNodeOption = currentNode.next.asInstanceOf[Option[NN]]
         }
     }
+  }
+
+}
+
+private[linkedlists] abstract class ListMapper[
+  T, N <: ListNode[T, N], L <: LinkedList[T, N, _], TT, NN <: ListNode[TT, NN], LL <: LinkedList[TT, NN, _]
+](protected val list: L) {
+
+  protected val mappedList: LL = newList()
+
+  def newList(): LL
+
+  def newNode(value: TT, previousNode: Option[NN] = None): NN
+
+  def assignTail(node: NN): Unit
+
+  def map(f: T => TT): LL = {
+    list.head match {
+      case None =>
+      // Do nothing further
+      case Some(headNode) =>
+        val mappedHeadNode = newNode(f(headNode.value))
+        mappedList.head = Some(mappedHeadNode)
+        var currentSourceNode: Option[N] = headNode.next
+        var latestAttachedMapNode: NN = mappedHeadNode
+        while(currentSourceNode.isDefined) {
+          val nextMappedNode = newNode(f(currentSourceNode.get.value), Some(latestAttachedMapNode))
+          latestAttachedMapNode.next = Some(nextMappedNode)
+          latestAttachedMapNode = nextMappedNode
+          currentSourceNode = currentSourceNode.get.next
+        }
+        assignTail(latestAttachedMapNode)
+    }
+    mappedList
   }
 
 }
