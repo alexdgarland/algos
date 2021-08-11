@@ -1,5 +1,7 @@
 package crackingthecodinginterview.linkedlists
 
+import scala.collection.mutable.{Map => MutableMap}
+
 /***
  *
  * @param head First item in the list (may be null if list is empty).
@@ -82,6 +84,33 @@ case class DoublyLinkedList[T]
         beforeNode.next.foreach(_.prev = Some(beforeNode))
       }
     }.deleteAt(index)
+  }
+
+  override def deduplicate(): Unit = {
+    head match {
+      case None =>
+      // Do nothing further
+      case Some(headNode) =>
+        val seenValues = MutableMap[T, Boolean]()
+        var previousNodeOption: Option[DoublyLinkedNode[T]] = Some(headNode)
+        // Loop through each element in the list (so linear-time)
+        while(previousNodeOption.flatMap(_.next).isDefined) {
+          val previousNode = previousNodeOption.get
+          val nextNode = previousNode.next.get
+          seenValues.put(previousNode.value, true)
+          // Either way this if statement branches, we advance one position linearly towards the end
+          if (seenValues.contains(nextNode.value)) {
+            // Remove a node (keep previous the same - the end still gets closer!)
+            val newNextOption = nextNode.next
+            previousNode.next = newNextOption
+            newNextOption.get.prev = Some(previousNode)
+          }
+          else {
+            // If we're not removing a node, advance the "previous" node so we keep moving forward
+            previousNodeOption = previousNode.next
+          }
+        }
+    }
   }
 
 }

@@ -37,7 +37,7 @@ trait LinkedList[T, N <: ListNode[T, _], +LL] {
   /***
    * Insert to end of list. Time complexity varies between implementations.
    *
-   * @param value
+   * @param value Value to append.
    */
   def append(value: T): Unit
 
@@ -77,6 +77,13 @@ trait LinkedList[T, N <: ListNode[T, _], +LL] {
    * @param index The index at which to delete a node.
    */
   def deleteAt(index: Int): Unit
+
+  /***
+   * Remove all duplicate values from the list in O(n), keeping track of what values we've already seen using a map.
+   *
+   * The map adds worst-case space complexity of O(n), it will be smaller in as far as there are duplicate values.
+   */
+  def deduplicate(): Unit
 
 }
 

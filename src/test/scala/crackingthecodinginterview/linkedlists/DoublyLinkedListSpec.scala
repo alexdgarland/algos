@@ -168,10 +168,10 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
     biDirectionalCompare(mappedList, List())
   }
 
-//  it should "allow deduplication" in {
-//    val linkedList = LinkedList.fromList(List(1, 1, 2, 3, 4, 4, 4, 2, 5, 5, 3, 6, 6, 7))
-//    linkedList.deduplicate()
-//    linkedList.toList should be(List(1, 2, 3, 4, 5, 6, 7))
-//  }
+  it should "allow deduplication" in {
+    val linkedList = DoublyLinkedList.fromList(List(1, 1, 2, 3, 4, 4, 4, 2, 5, 5, 3, 6, 6, 7))
+    linkedList.deduplicate()
+    biDirectionalCompare(linkedList, List(1, 2, 3, 4, 5, 6, 7))
+  }
 
 }

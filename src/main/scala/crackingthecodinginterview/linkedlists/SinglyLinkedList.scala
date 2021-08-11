@@ -58,11 +58,6 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
     }.deleteAt(index)
   }
 
-  /***
-   * Remove all duplicate values from the list in O(n), keeping track of what values we've already seen using a map.
-   *
-   * The map adds worst-case space complexity of O(n), it will be smaller in as far as there are duplicate values.
-   */
   def deduplicate(): Unit = {
     head match {
       case None =>
