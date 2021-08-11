@@ -57,8 +57,8 @@ case class DoublyLinkedList[T]
 
   override def map[TT](f: T => TT): DoublyLinkedList[TT] = {
     new ListMapper[T, DoublyLinkedNode[T], DoublyLinkedList[T], TT, DoublyLinkedNode[TT], DoublyLinkedList[TT]](this) {
-      override def newList(): DoublyLinkedList[TT] = DoublyLinkedList()
-      override def newNode(value: TT, previousNode: Option[DoublyLinkedNode[TT]]): DoublyLinkedNode[TT] =
+      override protected def newList(): DoublyLinkedList[TT] = DoublyLinkedList()
+      override protected def newNode(value: TT, previousNode: Option[DoublyLinkedNode[TT]]): DoublyLinkedNode[TT] =
         DoublyLinkedNode(value, None, previousNode)
       override def assignTail(node: DoublyLinkedNode[TT]): Unit = mappedList.tail = Some(node)
     }.map(f)
@@ -66,7 +66,7 @@ case class DoublyLinkedList[T]
 
   override def insertAt(value: T, index: Int): Unit = {
     new PositionalListInserter[T, DoublyLinkedNode[T], DoublyLinkedList[T]](this) {
-      override def insertValue(value: T, beforeNode: DoublyLinkedNode[T]): Unit = {
+      override protected def insertValue(value: T, beforeNode: DoublyLinkedNode[T]): Unit = {
         val newNode = Some(DoublyLinkedNode(value, beforeNode.next, Some(beforeNode)))
         beforeNode.next match {
           case Some(node) => node.prev = newNode
@@ -79,7 +79,7 @@ case class DoublyLinkedList[T]
 
   override def deleteAt(index: Int): Unit = {
     new PositionalListNodeDeleter[T, DoublyLinkedNode[T], DoublyLinkedList[T]](this) {
-      override def deleteNode(beforeNode: DoublyLinkedNode[T], nodeToDelete: DoublyLinkedNode[T]): Unit = {
+      override protected def deleteNode(beforeNode: DoublyLinkedNode[T], nodeToDelete: DoublyLinkedNode[T]): Unit = {
         beforeNode.next = nodeToDelete.next
         beforeNode.next.foreach(_.prev = Some(beforeNode))
       }
@@ -87,30 +87,12 @@ case class DoublyLinkedList[T]
   }
 
   override def deduplicate(): Unit = {
-    head match {
-      case None =>
-      // Do nothing further
-      case Some(headNode) =>
-        val seenValues = MutableMap[T, Boolean]()
-        var previousNodeOption: Option[DoublyLinkedNode[T]] = Some(headNode)
-        // Loop through each element in the list (so linear-time)
-        while(previousNodeOption.flatMap(_.next).isDefined) {
-          val previousNode = previousNodeOption.get
-          val nextNode = previousNode.next.get
-          seenValues.put(previousNode.value, true)
-          // Either way this if statement branches, we advance one position linearly towards the end
-          if (seenValues.contains(nextNode.value)) {
-            // Remove a node (keep previous the same - the end still gets closer!)
-            val newNextOption = nextNode.next
-            previousNode.next = newNextOption
-            newNextOption.get.prev = Some(previousNode)
-          }
-          else {
-            // If we're not removing a node, advance the "previous" node so we keep moving forward
-            previousNodeOption = previousNode.next
-          }
-        }
-    }
+    new ListDeduplicator[T, DoublyLinkedNode[T], DoublyLinkedList[T]](this) {
+      override protected def deleteNode(beforeNode: DoublyLinkedNode[T], nodeToDelete: DoublyLinkedNode[T]): Unit = {
+        beforeNode.next = nodeToDelete.next
+        beforeNode.next.foreach(_.prev = Some(beforeNode))
+      }
+    }.deduplicate()
   }
 
 }

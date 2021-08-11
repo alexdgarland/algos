@@ -1,6 +1,7 @@
 package crackingthecodinginterview.linkedlists
 
 import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.{Map => MutableMap}
 
 trait LinkedList[T, N <: ListNode[T, _], +LL] {
 
@@ -136,11 +137,11 @@ private[linkedlists] abstract class ListMapper[
 
   protected val mappedList: LL = newList()
 
-  def newList(): LL
+  protected def newList(): LL
 
-  def newNode(value: TT, previousNode: Option[NN] = None): NN
+  protected def newNode(value: TT, previousNode: Option[NN] = None): NN
 
-  def assignTail(node: NN): Unit
+  protected def assignTail(node: NN): Unit
 
   def map(f: T => TT): LL = {
     list.head match {
@@ -167,7 +168,7 @@ private[linkedlists] abstract class ListMapper[
 private[linkedlists] abstract class PositionalListInserter[T, N <: ListNode[T, _], L <: LinkedList[T, N, _]]
 (protected val list: L) {
 
-  def insertValue(value: T, beforeNode: N): Unit
+  protected def insertValue(value: T, beforeNode: N): Unit
 
   def insertAt(value: T, index: Int): Unit = {
     if (index < 0) {
@@ -193,7 +194,7 @@ private[linkedlists] abstract class PositionalListInserter[T, N <: ListNode[T, _
 private[linkedlists] abstract class PositionalListNodeDeleter[T, N <: ListNode[T, _], L <: LinkedList[T, N, _]]
 (protected val list: L) {
 
-  def deleteNode(beforeNode: N, nodeToDelete: N): Unit
+  protected def deleteNode(beforeNode: N, nodeToDelete: N): Unit
 
   def deleteAt(index: Int) : Unit = {
     val throwIndexTooLarge = () => throw new IndexOutOfBoundsException(
@@ -211,6 +212,39 @@ private[linkedlists] abstract class PositionalListNodeDeleter[T, N <: ListNode[T
           case Some(nodeToDelete) =>
             deleteNode(beforeNode, nodeToDelete.asInstanceOf[N])
         }
+    }
+  }
+
+}
+
+private[linkedlists] abstract class ListDeduplicator[T, N <: ListNode[T, N], L <: LinkedList[T, N, _]]
+(protected val list: L) {
+
+  // TODO - can we unify implementation with other places where we need to delete nodes (deleteAt, deleteWhere)?
+  protected def deleteNode(beforeNode: N, nodeToDelete: N): Unit
+
+  def deduplicate(): Unit = {
+    list.head match {
+    case None =>
+      // Do nothing further
+    case Some(headNode) =>
+      val seenValues = MutableMap[T, Boolean]()
+      var previousNodeOption: Option[N] = Some(headNode)
+      // Loop through each element in the list (so linear-time)
+      while(previousNodeOption.flatMap(_.next).isDefined) {
+        val previousNode = previousNodeOption.get
+        val nextNode = previousNode.next.get
+        seenValues.put(previousNode.value, true)
+        // Either way this if statement branches, we advance one position linearly towards the end
+        if (seenValues.contains(nextNode.value)) {
+          // Remove a node (keep previous the same - the end still gets closer!)
+          deleteNode(previousNode, nextNode)
+        }
+        else {
+          // If we're not removing a node, advance the "previous" node so we keep moving forward
+          previousNodeOption = previousNode.next
+        }
+      }
     }
   }
 

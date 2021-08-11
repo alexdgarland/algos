@@ -36,15 +36,16 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
 
   def map[TT](f: T => TT): SinglyLinkedList[TT] = {
     new ListMapper[T, SinglyLinkedNode[T], SinglyLinkedList[T], TT, SinglyLinkedNode[TT], SinglyLinkedList[TT]](this) {
-      override def newList(): SinglyLinkedList[TT] = SinglyLinkedList()
-      override def newNode(value: TT, previousNode: Option[SinglyLinkedNode[TT]]): SinglyLinkedNode[TT] = SinglyLinkedNode(value)
-      override def assignTail(node: SinglyLinkedNode[TT]): Unit = ()
+      override protected def newList(): SinglyLinkedList[TT] = SinglyLinkedList()
+      override protected def newNode(value: TT, previousNode: Option[SinglyLinkedNode[TT]]): SinglyLinkedNode[TT] =
+        SinglyLinkedNode(value)
+      override protected def assignTail(node: SinglyLinkedNode[TT]): Unit = ()
     }.map(f)
   }
 
   def insertAt(value: T, index: Int): Unit = {
     new PositionalListInserter[T, SinglyLinkedNode[T], SinglyLinkedList[T]](this) {
-      override def insertValue(value: T, beforeNode: SinglyLinkedNode[T]): Unit = {
+      override protected def insertValue(value: T, beforeNode: SinglyLinkedNode[T]): Unit = {
         beforeNode.next = Some(SinglyLinkedNode(value, beforeNode.next))
       }
     }.insertAt(value, index)
@@ -52,35 +53,18 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
 
   def deleteAt(index: Int): Unit = {
     new PositionalListNodeDeleter[T, SinglyLinkedNode[T], SinglyLinkedList[T]](this) {
-      override def deleteNode(beforeNode: SinglyLinkedNode[T], nodeToDelete: SinglyLinkedNode[T]): Unit = {
+      override protected def deleteNode(beforeNode: SinglyLinkedNode[T], nodeToDelete: SinglyLinkedNode[T]): Unit = {
         beforeNode.next = nodeToDelete.next
       }
     }.deleteAt(index)
   }
 
   def deduplicate(): Unit = {
-    head match {
-      case None =>
-      // Do nothing further
-      case Some(headNode) =>
-        val seenValues = MutableMap[T, Boolean]()
-        var previousNodeOption: Option[SinglyLinkedNode[T]] = Some(headNode)
-        // Loop through each element in the list (so linear-time)
-        while(previousNodeOption.flatMap(_.next).isDefined) {
-          val previousNode = previousNodeOption.get
-          val nextNode = previousNode.next.get
-          seenValues.put(previousNode.value, true)
-          // Either way this if statement branches, we advance one position linearly towards the end
-          if (seenValues.contains(nextNode.value)) {
-            // Remove a node (keep previous the same - the end still gets closer!)
-            previousNode.next = nextNode.next
-          }
-          else {
-            // If we're not removing a node, advance the "previous" node so we keep moving forward
-            previousNodeOption = previousNode.next
-          }
-        }
-    }
+    new ListDeduplicator[T, SinglyLinkedNode[T], SinglyLinkedList[T]](this) {
+      override protected def deleteNode(beforeNode: SinglyLinkedNode[T], nodeToDelete: SinglyLinkedNode[T]): Unit = {
+        beforeNode.next = nodeToDelete.next
+      }
+    }.deduplicate()
   }
 
 }
