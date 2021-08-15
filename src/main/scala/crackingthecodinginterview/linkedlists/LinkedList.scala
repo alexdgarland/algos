@@ -44,9 +44,11 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
 
   protected def deleteNextNode(beforeNode: N): Unit
 
-  protected def deleteWhereInitialAssign(firstRetainedNodeOption: Option[N]): Unit
+  protected def initialAssignForDeleteWhere(firstRetainedNodeOption: Option[N]): Unit
 
-  protected def deleteWhereAssignTail(potentialTailNode: N): Unit
+  protected def assignTailForDeleteWhere(potentialTailNode: N): Unit
+
+  protected def insertAfter(value: T, beforeNode: N): Unit
 
   /***
    * Delete all nodes from linked list where values meet the supplied predicate.
@@ -66,14 +68,14 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
         while (currentNodeOption.exists(n => predicate(n.value))) {
           currentNodeOption = currentNodeOption.flatMap(_.next)
         }
-        deleteWhereInitialAssign(currentNodeOption)
+        initialAssignForDeleteWhere(currentNodeOption)
         // If we still have nodes left, repoint as needed
         while(currentNodeOption.isDefined) {
           val currentNode = currentNodeOption.get
           if (currentNode.next.exists(n => predicate(n.value))) {
             deleteNextNode(currentNode)
           }
-          deleteWhereAssignTail(currentNode)
+          assignTailForDeleteWhere(currentNode)
           currentNodeOption = currentNode.next
         }
     }
@@ -94,7 +96,24 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
    * @param value The value to insert.
    * @param index The index at which to insert. If negative or too large for the list, an error will be thrown.
    */
-  def insertAt(value: T, index: Int): Unit
+  def insertAt(value: T, index: Int): Unit  = {
+    if (index < 0) {
+      throw new IndexOutOfBoundsException("Cannot insert to a negative index")
+    }
+    else if (index == 0) { prepend(value) }
+    else {
+      val throwIndexTooLarge = () => throw new IndexOutOfBoundsException(
+        s"Cannot insert at index $index as existing list is too short"
+      )
+      head match {
+        case None => throwIndexTooLarge()
+        case Some(node) =>
+          var beforeNode = node
+          (1 until index).foreach { _ => beforeNode = beforeNode.next.getOrElse(throwIndexTooLarge()) }
+          insertAfter(value, beforeNode)
+      }
+    }
+  }
 
   /***
    * Delete one element from the list at a given index.
@@ -186,32 +205,6 @@ private[linkedlists] abstract class ListMapper[
         assignTail(latestAttachedMapNode)
     }
     mappedList
-  }
-
-}
-
-private[linkedlists] abstract class PositionalListInserter[T, N <: ListNode[T, N], L <: LinkedList[T, N, _]]
-(protected val list: L) {
-
-  protected def insertValue(value: T, beforeNode: N): Unit
-
-  def insertAt(value: T, index: Int): Unit = {
-    if (index < 0) {
-      throw new IndexOutOfBoundsException("Cannot insert to a negative index")
-    }
-    else if (index == 0) { list.prepend(value) }
-    else {
-      val throwIndexTooLarge = () => throw new IndexOutOfBoundsException(
-        s"Cannot insert at index $index as existing list is too short"
-      )
-      list.head match {
-        case None => throwIndexTooLarge()
-        case Some(node) =>
-          var beforeNode = node
-          (1 until index).foreach { _ => beforeNode = beforeNode.next.getOrElse(throwIndexTooLarge()) }
-          insertValue(value, beforeNode)
-      }
-    }
   }
 
 }

@@ -31,23 +31,19 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
     }.map(f)
   }
 
-  def insertAt(value: T, index: Int): Unit = {
-    new PositionalListInserter[T, SinglyLinkedNode[T], SinglyLinkedList[T]](this) {
-      override protected def insertValue(value: T, beforeNode: SinglyLinkedNode[T]): Unit = {
-        beforeNode.next = Some(SinglyLinkedNode(value, beforeNode.next))
-      }
-    }.insertAt(value, index)
-  }
-
   override protected def deleteNextNode(beforeNode: SinglyLinkedNode[T]): Unit = {
     beforeNode.next = beforeNode.next.get.next
   }
 
-  override protected def deleteWhereInitialAssign(firstRetainedNodeOption: Option[SinglyLinkedNode[T]]): Unit = {
+  override protected def initialAssignForDeleteWhere(firstRetainedNodeOption: Option[SinglyLinkedNode[T]]): Unit = {
     head = firstRetainedNodeOption
   }
 
-  override protected def deleteWhereAssignTail(potentialTailNode: SinglyLinkedNode[T]): Unit = {}
+  override protected def assignTailForDeleteWhere(potentialTailNode: SinglyLinkedNode[T]): Unit = {}
+
+  override protected def insertAfter(value: T, beforeNode: SinglyLinkedNode[T]): Unit = {
+    beforeNode.next = Some(SinglyLinkedNode(value, beforeNode.next))
+  }
 
 }
 

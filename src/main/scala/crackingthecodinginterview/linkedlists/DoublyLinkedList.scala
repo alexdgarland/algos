@@ -44,32 +44,28 @@ case class DoublyLinkedList[T]
     }.map(f)
   }
 
-  override def insertAt(value: T, index: Int): Unit = {
-    new PositionalListInserter[T, DoublyLinkedNode[T], DoublyLinkedList[T]](this) {
-      override protected def insertValue(value: T, beforeNode: DoublyLinkedNode[T]): Unit = {
-        val newNode = Some(DoublyLinkedNode(value, beforeNode.next, Some(beforeNode)))
-        beforeNode.next match {
-          case Some(node) => node.prev = newNode
-          case None => tail = newNode
-        }
-        beforeNode.next = newNode
-      }
-    }.insertAt(value, index)
-  }
-
   override protected def deleteNextNode(beforeNode: DoublyLinkedNode[T]): Unit = {
     beforeNode.next = beforeNode.next.get.next
     beforeNode.next.foreach(_.prev = Some(beforeNode))
   }
 
-  override protected def deleteWhereInitialAssign(firstRetainedNodeOption: Option[DoublyLinkedNode[T]]): Unit = {
+  override protected def initialAssignForDeleteWhere(firstRetainedNodeOption: Option[DoublyLinkedNode[T]]): Unit = {
     firstRetainedNodeOption.foreach(_.prev = None)
     head = firstRetainedNodeOption
     tail = firstRetainedNodeOption
   }
 
-  override protected def deleteWhereAssignTail(potentialTailNode: DoublyLinkedNode[T]): Unit = {
+  override protected def assignTailForDeleteWhere(potentialTailNode: DoublyLinkedNode[T]): Unit = {
     potentialTailNode.next.foreach(node => tail = Some(node))
+  }
+
+  override protected def insertAfter(value: T, beforeNode: DoublyLinkedNode[T]): Unit = {
+    val newNode = Some(DoublyLinkedNode(value, beforeNode.next, Some(beforeNode)))
+    beforeNode.next match {
+      case Some(node) => node.prev = newNode
+      case None => tail = newNode
+    }
+    beforeNode.next = newNode
   }
 
 }
