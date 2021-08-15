@@ -3,7 +3,7 @@ package crackingthecodinginterview.linkedlists
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.{Map => MutableMap}
 
-trait LinkedList[T, N <: ListNode[T, _], +LL] {
+trait LinkedList[T, N <: ListNode[T, N], +LL] {
 
   var head: Option[N]
 
@@ -15,7 +15,7 @@ trait LinkedList[T, N <: ListNode[T, _], +LL] {
   def toList
   (
     start: Option[N] = head,
-    move: N => Option[N] = node => node.next.asInstanceOf[Option[N]]
+    move: N => Option[N] = node => node.next
   ): List[T] = {
     val listBuffer = ListBuffer[T]()
     var currentNode = start
@@ -42,6 +42,12 @@ trait LinkedList[T, N <: ListNode[T, _], +LL] {
    */
   def append(value: T): Unit
 
+  protected def deleteNextNode(beforeNode: N): Unit
+
+  protected def deleteWhereInitialAssign(firstRetainedNodeOption: Option[N]): Unit
+
+  protected def deleteWhereAssignTail(potentialTailNode: N): Unit
+
   /***
    * Delete all nodes from linked list where values meet the supplied predicate.
    *
@@ -49,7 +55,29 @@ trait LinkedList[T, N <: ListNode[T, _], +LL] {
    *
    * @param predicate Function to evaluate whether a node should be removed based on its value.
    */
-  def deleteWhere(predicate: T => Boolean): Unit
+  def deleteWhere(predicate: T => Boolean): Unit = {
+    head match {
+      case None =>
+      // (Do nothing when dealing with an empty list)
+      case Some(node) =>
+        // Fast-forward through list to find the first non-deletable item to serve as new head
+        // If none are found the list will be completely emptied out without having to do any repointing
+        var currentNodeOption: Option[N] = Some(node)
+        while (currentNodeOption.exists(n => predicate(n.value))) {
+          currentNodeOption = currentNodeOption.flatMap(_.next)
+        }
+        deleteWhereInitialAssign(currentNodeOption)
+        // If we still have nodes left, repoint as needed
+        while(currentNodeOption.isDefined) {
+          val currentNode = currentNodeOption.get
+          if (currentNode.next.exists(n => predicate(n.value))) {
+            deleteNextNode(currentNode)
+          }
+          deleteWhereAssignTail(currentNode)
+          currentNodeOption = currentNode.next
+        }
+    }
+  }
 
   def map[TT](f: T => TT): LL
 
@@ -77,54 +105,51 @@ trait LinkedList[T, N <: ListNode[T, _], +LL] {
    *
    * @param index The index at which to delete a node.
    */
-  def deleteAt(index: Int): Unit
+  def deleteAt(index: Int) : Unit = {
+    val throwIndexTooLarge = () => throw new IndexOutOfBoundsException(
+      s"Cannot delete element at index $index as this is beyond the end of the linked list"
+    )
+    head match {
+      case None =>
+        throw new IndexOutOfBoundsException("Cannot delete from an empty linked list")
+      case Some(node) =>
+        var beforeNode = node
+        (1 until index).foreach { _ => beforeNode = beforeNode.next.getOrElse(throwIndexTooLarge()) }
+        beforeNode.next match {
+          case None =>
+            throwIndexTooLarge()
+          case Some(nodeToDelete) =>
+            deleteNextNode(beforeNode)
+        }
+    }
+  }
 
   /***
    * Remove all duplicate values from the list in O(n), keeping track of what values we've already seen using a map.
    *
    * The map adds worst-case space complexity of O(n), it will be smaller in as far as there are duplicate values.
    */
-  def deduplicate(): Unit
-
-}
-
-/**
- * Abstract class to handle shared implementation of deleteWhere.
- *
- * @param list List of type L to delete elements from.
- * @tparam T Type of values.
- * @tparam NN Type of list nodes (singly- or doubly-linked, plus value type).
- * @tparam L Type of list (singly- or doubly-linked, plus value type).
- */
-private[linkedlists] abstract class PredicateBasedNodeDeleter[T, NN <: ListNode[T, _], L <: LinkedList[T, NN, _]]
-(protected val list: L) {
-
-  protected def initialAssign(firstRetainedNodeOption: Option[NN]): Unit
-
-  protected def skipNode(nodeBeforeSkippable: NN): Unit
-
-  protected def assignTail(potentialTailNode: NN): Unit
-
-  def deleteWhere(predicate: T => Boolean): Unit = {
-    list.head match {
+  def deduplicate(): Unit = {
+    head match {
       case None =>
-      // (Do nothing when dealing with an empty list)
-      case Some(node) =>
-        // Fast-forward through list to find the first non-deletable item to serve as new head
-        // If none are found the list will be completely emptied out without having to do any repointing
-        var currentNodeOption: Option[NN] = Some(node)
-        while (currentNodeOption.exists(n => predicate(n.value))) {
-          currentNodeOption = currentNodeOption.flatMap(_.next.asInstanceOf[Option[NN]])
-        }
-        initialAssign(currentNodeOption)
-        // If we still have nodes left, repoint as needed
-        while(currentNodeOption.isDefined) {
-          val currentNode = currentNodeOption.get
-          if (currentNode.next.exists(n => predicate(n.asInstanceOf[NN].value))) {
-            skipNode(currentNode)
+      // Do nothing further
+      case Some(headNode) =>
+        val seenValues = MutableMap[T, Boolean]()
+        var previousNodeOption: Option[N] = Some(headNode)
+        // Loop through each element in the list (so linear-time)
+        while(previousNodeOption.flatMap(_.next).isDefined) {
+          val previousNode = previousNodeOption.get
+          val nextNode = previousNode.next.get
+          seenValues.put(previousNode.value, true)
+          // Either way this if statement branches, we advance one position linearly towards the end
+          if (seenValues.contains(nextNode.value)) {
+            // Remove a node (keep previous the same - the end still gets closer!)
+            deleteNextNode(previousNode)
           }
-          assignTail(currentNode)
-          currentNodeOption = currentNode.next.asInstanceOf[Option[NN]]
+          else {
+            // If we're not removing a node, advance the "previous" node so we keep moving forward
+            previousNodeOption = previousNode.next
+          }
         }
     }
   }
@@ -165,7 +190,7 @@ private[linkedlists] abstract class ListMapper[
 
 }
 
-private[linkedlists] abstract class PositionalListInserter[T, N <: ListNode[T, _], L <: LinkedList[T, N, _]]
+private[linkedlists] abstract class PositionalListInserter[T, N <: ListNode[T, N], L <: LinkedList[T, N, _]]
 (protected val list: L) {
 
   protected def insertValue(value: T, beforeNode: N): Unit
@@ -183,67 +208,8 @@ private[linkedlists] abstract class PositionalListInserter[T, N <: ListNode[T, _
         case None => throwIndexTooLarge()
         case Some(node) =>
           var beforeNode = node
-          (1 until index).foreach { _ => beforeNode = beforeNode.next.getOrElse(throwIndexTooLarge()).asInstanceOf[N] }
+          (1 until index).foreach { _ => beforeNode = beforeNode.next.getOrElse(throwIndexTooLarge()) }
           insertValue(value, beforeNode)
-      }
-    }
-  }
-
-}
-
-private[linkedlists] abstract class PositionalListNodeDeleter[T, N <: ListNode[T, _], L <: LinkedList[T, N, _]]
-(protected val list: L) {
-
-  protected def deleteNode(beforeNode: N, nodeToDelete: N): Unit
-
-  def deleteAt(index: Int) : Unit = {
-    val throwIndexTooLarge = () => throw new IndexOutOfBoundsException(
-      s"Cannot delete element at index $index as this is beyond the end of the linked list"
-    )
-    list.head match {
-      case None =>
-        throw new IndexOutOfBoundsException("Cannot delete from an empty linked list")
-      case Some(node) =>
-        var beforeNode = node
-        (1 until index).foreach { _ => beforeNode = beforeNode.next.getOrElse(throwIndexTooLarge()).asInstanceOf[N] }
-        beforeNode.next match {
-          case None =>
-            throwIndexTooLarge()
-          case Some(nodeToDelete) =>
-            deleteNode(beforeNode, nodeToDelete.asInstanceOf[N])
-        }
-    }
-  }
-
-}
-
-private[linkedlists] abstract class ListDeduplicator[T, N <: ListNode[T, N], L <: LinkedList[T, N, _]]
-(protected val list: L) {
-
-  // TODO - can we unify implementation with other places where we need to delete nodes (deleteAt, deleteWhere)?
-  protected def deleteNode(beforeNode: N, nodeToDelete: N): Unit
-
-  def deduplicate(): Unit = {
-    list.head match {
-    case None =>
-      // Do nothing further
-    case Some(headNode) =>
-      val seenValues = MutableMap[T, Boolean]()
-      var previousNodeOption: Option[N] = Some(headNode)
-      // Loop through each element in the list (so linear-time)
-      while(previousNodeOption.flatMap(_.next).isDefined) {
-        val previousNode = previousNodeOption.get
-        val nextNode = previousNode.next.get
-        seenValues.put(previousNode.value, true)
-        // Either way this if statement branches, we advance one position linearly towards the end
-        if (seenValues.contains(nextNode.value)) {
-          // Remove a node (keep previous the same - the end still gets closer!)
-          deleteNode(previousNode, nextNode)
-        }
-        else {
-          // If we're not removing a node, advance the "previous" node so we keep moving forward
-          previousNodeOption = previousNode.next
-        }
       }
     }
   }

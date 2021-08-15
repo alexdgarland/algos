@@ -1,7 +1,5 @@
 package crackingthecodinginterview.linkedlists
 
-import scala.collection.mutable.{Map => MutableMap}
-
 case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) extends LinkedList[T, SinglyLinkedNode[T], SinglyLinkedList[_]] {
 
   /** *
@@ -24,16 +22,6 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
 
   def prepend(value: T): Unit = head = Some(SinglyLinkedNode(value, head))
 
-  def deleteWhere(predicate: T => Boolean): Unit = {
-    new PredicateBasedNodeDeleter[T, SinglyLinkedNode[T], SinglyLinkedList[T]](this) {
-      override protected def initialAssign(firstRetainedNodeOption: Option[SinglyLinkedNode[T]]): Unit =
-        list.head = firstRetainedNodeOption
-      override protected def skipNode(nodeBeforeSkippable: SinglyLinkedNode[T]): Unit =
-        nodeBeforeSkippable.next = nodeBeforeSkippable.next.get.next
-      override protected def assignTail(potentialTailNode: SinglyLinkedNode[T]): Unit = ()
-    }.deleteWhere(predicate)
-  }
-
   def map[TT](f: T => TT): SinglyLinkedList[TT] = {
     new ListMapper[T, SinglyLinkedNode[T], SinglyLinkedList[T], TT, SinglyLinkedNode[TT], SinglyLinkedList[TT]](this) {
       override protected def newList(): SinglyLinkedList[TT] = SinglyLinkedList()
@@ -51,21 +39,15 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
     }.insertAt(value, index)
   }
 
-  def deleteAt(index: Int): Unit = {
-    new PositionalListNodeDeleter[T, SinglyLinkedNode[T], SinglyLinkedList[T]](this) {
-      override protected def deleteNode(beforeNode: SinglyLinkedNode[T], nodeToDelete: SinglyLinkedNode[T]): Unit = {
-        beforeNode.next = nodeToDelete.next
-      }
-    }.deleteAt(index)
+  override protected def deleteNextNode(beforeNode: SinglyLinkedNode[T]): Unit = {
+    beforeNode.next = beforeNode.next.get.next
   }
 
-  def deduplicate(): Unit = {
-    new ListDeduplicator[T, SinglyLinkedNode[T], SinglyLinkedList[T]](this) {
-      override protected def deleteNode(beforeNode: SinglyLinkedNode[T], nodeToDelete: SinglyLinkedNode[T]): Unit = {
-        beforeNode.next = nodeToDelete.next
-      }
-    }.deduplicate()
+  override protected def deleteWhereInitialAssign(firstRetainedNodeOption: Option[SinglyLinkedNode[T]]): Unit = {
+    head = firstRetainedNodeOption
   }
+
+  override protected def deleteWhereAssignTail(potentialTailNode: SinglyLinkedNode[T]): Unit = {}
 
 }
 

@@ -1,7 +1,5 @@
 package crackingthecodinginterview.linkedlists
 
-import scala.collection.mutable.{Map => MutableMap}
-
 /***
  *
  * @param head First item in the list (may be null if list is empty).
@@ -15,24 +13,6 @@ case class DoublyLinkedList[T]
 ) extends LinkedList[T, DoublyLinkedNode[T], DoublyLinkedList[_]] {
 
   def toListReversed: List[T] = toList(tail, node => node.prev)
-
-  def deleteWhere(predicate: T => Boolean): Unit = {
-    new PredicateBasedNodeDeleter[T, DoublyLinkedNode[T], DoublyLinkedList[T]](this) {
-      override protected def initialAssign(firstRetainedNodeOption: Option[DoublyLinkedNode[T]]): Unit = {
-        firstRetainedNodeOption.foreach(_.prev = None)
-        list.head = firstRetainedNodeOption
-        list.tail = firstRetainedNodeOption
-      }
-      override protected def skipNode(nodeBeforeSkippable: DoublyLinkedNode[T]): Unit = {
-        val skipToNode = nodeBeforeSkippable.next.get.next
-        nodeBeforeSkippable.next = skipToNode
-        skipToNode.foreach(_.prev = Some(nodeBeforeSkippable))
-      }
-      override protected def assignTail(potentialTailNode: DoublyLinkedNode[T]): Unit = {
-        potentialTailNode.next.foreach(node => list.tail = Some(node))
-      }
-    }.deleteWhere(predicate)
-  }
 
   override def prepend(value: T): Unit = {
     val newNode = Some(DoublyLinkedNode(value, head))
@@ -77,22 +57,19 @@ case class DoublyLinkedList[T]
     }.insertAt(value, index)
   }
 
-  override def deleteAt(index: Int): Unit = {
-    new PositionalListNodeDeleter[T, DoublyLinkedNode[T], DoublyLinkedList[T]](this) {
-      override protected def deleteNode(beforeNode: DoublyLinkedNode[T], nodeToDelete: DoublyLinkedNode[T]): Unit = {
-        beforeNode.next = nodeToDelete.next
-        beforeNode.next.foreach(_.prev = Some(beforeNode))
-      }
-    }.deleteAt(index)
+  override protected def deleteNextNode(beforeNode: DoublyLinkedNode[T]): Unit = {
+    beforeNode.next = beforeNode.next.get.next
+    beforeNode.next.foreach(_.prev = Some(beforeNode))
   }
 
-  override def deduplicate(): Unit = {
-    new ListDeduplicator[T, DoublyLinkedNode[T], DoublyLinkedList[T]](this) {
-      override protected def deleteNode(beforeNode: DoublyLinkedNode[T], nodeToDelete: DoublyLinkedNode[T]): Unit = {
-        beforeNode.next = nodeToDelete.next
-        beforeNode.next.foreach(_.prev = Some(beforeNode))
-      }
-    }.deduplicate()
+  override protected def deleteWhereInitialAssign(firstRetainedNodeOption: Option[DoublyLinkedNode[T]]): Unit = {
+    firstRetainedNodeOption.foreach(_.prev = None)
+    head = firstRetainedNodeOption
+    tail = firstRetainedNodeOption
+  }
+
+  override protected def deleteWhereAssignTail(potentialTailNode: DoublyLinkedNode[T]): Unit = {
+    potentialTailNode.next.foreach(node => tail = Some(node))
   }
 
 }
