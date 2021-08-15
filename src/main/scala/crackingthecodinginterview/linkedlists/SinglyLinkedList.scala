@@ -23,12 +23,11 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
   def prepend(value: T): Unit = head = Some(SinglyLinkedNode(value, head))
 
   def map[TT](f: T => TT): SinglyLinkedList[TT] = {
-    new ListMapper[T, SinglyLinkedNode[T], SinglyLinkedList[T], TT, SinglyLinkedNode[TT], SinglyLinkedList[TT]](this) {
-      override protected def newList(): SinglyLinkedList[TT] = SinglyLinkedList()
-      override protected def newNode(value: TT, previousNode: Option[SinglyLinkedNode[TT]]): SinglyLinkedNode[TT] =
+    new ListMapper[T, SinglyLinkedNode[T], SinglyLinkedList[T], TT, SinglyLinkedNode[TT], SinglyLinkedList[TT]]() {
+      override def newList(): SinglyLinkedList[TT] = SinglyLinkedList()
+      override def newNode(value: TT, previousNode: Option[SinglyLinkedNode[TT]]): SinglyLinkedNode[TT] =
         SinglyLinkedNode(value)
-      override protected def assignTail(node: SinglyLinkedNode[TT]): Unit = ()
-    }.map(f)
+    }.map(this, f)
   }
 
   override protected def deleteNextNode(beforeNode: SinglyLinkedNode[T]): Unit = {
@@ -39,11 +38,11 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
     head = firstRetainedNodeOption
   }
 
-  override protected def assignTailForDeleteWhere(potentialTailNode: SinglyLinkedNode[T]): Unit = {}
-
   override protected def insertAfter(value: T, beforeNode: SinglyLinkedNode[T]): Unit = {
     beforeNode.next = Some(SinglyLinkedNode(value, beforeNode.next))
   }
+
+  override private[linkedlists] def setToTail(node: Option[SinglyLinkedNode[T]]): Unit = { }
 
 }
 

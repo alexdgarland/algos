@@ -36,12 +36,11 @@ case class DoublyLinkedList[T]
   }
 
   override def map[TT](f: T => TT): DoublyLinkedList[TT] = {
-    new ListMapper[T, DoublyLinkedNode[T], DoublyLinkedList[T], TT, DoublyLinkedNode[TT], DoublyLinkedList[TT]](this) {
-      override protected def newList(): DoublyLinkedList[TT] = DoublyLinkedList()
-      override protected def newNode(value: TT, previousNode: Option[DoublyLinkedNode[TT]]): DoublyLinkedNode[TT] =
+    new ListMapper[T, DoublyLinkedNode[T], DoublyLinkedList[T], TT, DoublyLinkedNode[TT], DoublyLinkedList[TT]]() {
+      override def newList(): DoublyLinkedList[TT] = DoublyLinkedList()
+      override def newNode(value: TT, previousNode: Option[DoublyLinkedNode[TT]]): DoublyLinkedNode[TT] =
         DoublyLinkedNode(value, None, previousNode)
-      override def assignTail(node: DoublyLinkedNode[TT]): Unit = mappedList.tail = Some(node)
-    }.map(f)
+    }.map(this, f)
   }
 
   override protected def deleteNextNode(beforeNode: DoublyLinkedNode[T]): Unit = {
@@ -55,10 +54,6 @@ case class DoublyLinkedList[T]
     tail = firstRetainedNodeOption
   }
 
-  override protected def assignTailForDeleteWhere(potentialTailNode: DoublyLinkedNode[T]): Unit = {
-    potentialTailNode.next.foreach(node => tail = Some(node))
-  }
-
   override protected def insertAfter(value: T, beforeNode: DoublyLinkedNode[T]): Unit = {
     val newNode = Some(DoublyLinkedNode(value, beforeNode.next, Some(beforeNode)))
     beforeNode.next match {
@@ -67,6 +62,8 @@ case class DoublyLinkedList[T]
     }
     beforeNode.next = newNode
   }
+
+  override private[linkedlists] def setToTail(node: Option[DoublyLinkedNode[T]]): Unit = tail = node
 
 }
 

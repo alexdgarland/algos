@@ -12,11 +12,7 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
    *
    * @return
    */
-  def toList
-  (
-    start: Option[N] = head,
-    move: N => Option[N] = node => node.next
-  ): List[T] = {
+  def toList(start: Option[N] = head, move: N => Option[N] = node => node.next): List[T] = {
     val listBuffer = ListBuffer[T]()
     var currentNode = start
     while (currentNode.isDefined) {
@@ -42,11 +38,11 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
    */
   def append(value: T): Unit
 
+  private[linkedlists] def setToTail(node: Option[N]): Unit
+
   protected def deleteNextNode(beforeNode: N): Unit
 
   protected def initialAssignForDeleteWhere(firstRetainedNodeOption: Option[N]): Unit
-
-  protected def assignTailForDeleteWhere(potentialTailNode: N): Unit
 
   protected def insertAfter(value: T, beforeNode: N): Unit
 
@@ -75,7 +71,7 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
           if (currentNode.next.exists(n => predicate(n.value))) {
             deleteNextNode(currentNode)
           }
-          assignTailForDeleteWhere(currentNode)
+          currentNode.next.foreach(node => setToTail(Some(node)))
           currentNodeOption = currentNode.next
         }
     }
@@ -175,34 +171,31 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
 
 }
 
-private[linkedlists] abstract class ListMapper[
+private[linkedlists] trait ListMapper[
   T, N <: ListNode[T, N], L <: LinkedList[T, N, _], TT, NN <: ListNode[TT, NN], LL <: LinkedList[TT, NN, _]
-](protected val list: L) {
+] {
 
-  protected val mappedList: LL = newList()
+  def newList(): LL
 
-  protected def newList(): LL
+  def newNode(value: TT, previousNode: Option[NN] = None): NN
 
-  protected def newNode(value: TT, previousNode: Option[NN] = None): NN
-
-  protected def assignTail(node: NN): Unit
-
-  def map(f: T => TT): LL = {
+  def map(list: L, f: T => TT): LL = {
+    val mappedList: LL = newList()
     list.head match {
       case None =>
-      // Do nothing further
+        // Do nothing further
       case Some(headNode) =>
         val mappedHeadNode = newNode(f(headNode.value))
         mappedList.head = Some(mappedHeadNode)
-        var currentSourceNode: Option[N] = headNode.next
-        var latestAttachedMapNode: NN = mappedHeadNode
+        var currentSourceNode = headNode.next
+        var latestAttachedMapNode = mappedHeadNode
         while(currentSourceNode.isDefined) {
           val nextMappedNode = newNode(f(currentSourceNode.get.value), Some(latestAttachedMapNode))
           latestAttachedMapNode.next = Some(nextMappedNode)
           latestAttachedMapNode = nextMappedNode
           currentSourceNode = currentSourceNode.get.next
         }
-        assignTail(latestAttachedMapNode)
+        mappedList.setToTail(Some(latestAttachedMapNode))
     }
     mappedList
   }
