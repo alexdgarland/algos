@@ -89,4 +89,34 @@ object DoublyLinkedList {
     linkedList
   }
 
+  /**
+   * Deletes a middle (non-head/ non-tail) node from a linked-list given a reference to the node only
+   * (NOT given a reference to list/ head/ parent node)
+   *
+   * @param node The node to delete
+   * @tparam T Type of values within the node
+   */
+  def deleteNode[T](node: DoublyLinkedNode[T]): Unit = {
+    (node.prev, node.next) match {
+      case (None, None) =>
+        // We don't have access to head or tail pointers,
+        // so without additional nodes to mutate we can't do what is needed
+        throw new IllegalArgumentException("Cannot delete only node in list without access to full list")
+      case (Some(previousNode), Some(nextNode)) =>
+        // If we're truly in the middle of the list, we can just repoint (no value changes within nodes)
+        previousNode.next = Some(nextNode)
+        nextNode.prev = Some(previousNode)
+      case (Some(previousNode), None) =>
+        // Deleting last node in list
+        node.value = previousNode.value
+        node.prev = previousNode.prev
+        node.prev.foreach(_.next = Some(node))
+      case (None, Some(nextNode)) =>
+        // Deleting first node in list
+        node.value = nextNode.value
+        node.next = nextNode.next
+        node.next.foreach(_.prev = Some(node))
+    }
+  }
+
 }

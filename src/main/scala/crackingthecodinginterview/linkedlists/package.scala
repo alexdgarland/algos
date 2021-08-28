@@ -6,19 +6,19 @@ package object linkedlists {
   // https://github.com/ghik/opinionated-scala/blob/master/chapters/Generics-and-type-members.md#f-bounded-polymorphism
 
   sealed trait ListNode[T, Self <: ListNode[T, Self]] {
-    val value: T
+    var value: T
     var next: Option[Self]
   }
 
   case class SinglyLinkedNode[T]
   (
-    value: T,
+    var value: T,
     var next: Option[SinglyLinkedNode[T]] = None
   ) extends ListNode[T, SinglyLinkedNode[T]]
 
   case class DoublyLinkedNode[T]
   (
-    value: T,
+    var value: T,
     var next: Option[DoublyLinkedNode[T]] = None,
     var prev: Option[DoublyLinkedNode[T]] = None
   ) extends ListNode[T, DoublyLinkedNode[T]]

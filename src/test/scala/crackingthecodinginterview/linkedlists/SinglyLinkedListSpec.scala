@@ -136,4 +136,34 @@ class SinglyLinkedListSpec extends AnyFlatSpec with should.Matchers {
     linkedList.toList() should be(List(1, 2, 3, 4, 5, 6, 7))
   }
 
+  "deleteNode object method" should "be able to delete node from list without access to full list" in {
+    val linkedList = SinglyLinkedList.fromList(List(1, 2, 3))
+    val midNode = linkedList.head.get.next.get
+    SinglyLinkedList.deleteNode(midNode)
+    linkedList.toList() should be(List(1, 3))
+  }
+
+  it should "be able to delete first node from list" in {
+    val linkedList = SinglyLinkedList.fromList(List(1, 2, 3))
+    val headNode = linkedList.head.get
+    SinglyLinkedList.deleteNode(headNode)
+    linkedList.toList() should be(List(2, 3))
+  }
+
+  it should "throw an error when passed only node in list" in {
+    val linkedList = SinglyLinkedList.fromList(List(1))
+    val onlyNode = linkedList.head.get
+    assertThrows[IllegalArgumentException] {
+      SinglyLinkedList.deleteNode(onlyNode)
+    }
+  }
+
+  it should "throw an error when passed final node in list" in {
+    val linkedList = SinglyLinkedList.fromList(List(1, 2, 3))
+    val finalNode = linkedList.head.get.next.get.next.get
+    assertThrows[IllegalArgumentException] {
+      SinglyLinkedList.deleteNode(finalNode)
+    }
+  }
+
 }

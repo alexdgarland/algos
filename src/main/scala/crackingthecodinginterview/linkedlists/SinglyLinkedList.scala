@@ -66,4 +66,21 @@ object SinglyLinkedList {
     SinglyLinkedList(nodes.headOption)
   }
 
+  /**
+   * Deletes a middle (non-head/ non-tail) node from a linked-list given a reference to the node only
+   * (NOT given a reference to list/ head/ parent node)
+   *
+   * @param node The node to delete
+   * @tparam T Type of values within the node
+   */
+  def deleteNode[T](node: SinglyLinkedNode[T]): Unit = {
+    node.next match {
+      case None =>
+        throw new IllegalArgumentException("Cannot delete final node of list without access to full list")
+      case Some(nextNode) =>
+        node.value = nextNode.value
+        node.next = nextNode.next
+    }
+  }
+
 }
