@@ -46,6 +46,9 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
     inner(head, 0)
   }
 
+  // TODO - generalise apply method so it can also handle kthFromLast for DoublyLinkedList
+  //  protected def moveToIndex(....): ....
+
   /**
    * Return a node from the list at a given index in O(n).
    *
@@ -59,7 +62,9 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
         case None =>
           None
         case Some(node) =>
-          if(remainingIndex == 0)
+          if(remainingIndex < 0)
+            None
+          else if(remainingIndex == 0)
             Some(node)
           else
             inner(node.next, remainingIndex - 1)
@@ -67,6 +72,16 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
     }
     inner(head, index)
   }
+
+  /**
+   * Get the kth-from-last node in the list (i.e. count backwards by k nodes from the final node).
+   *
+   * Implemented differently for each version of linked list.
+   *
+   * @param k reverse-index to retrieve node for
+   * @return Option of node - if index is out of range None, otherwise Some(node)
+   */
+  def kthFromLast(k: Int): Option[N]
 
   /***
    * Insert to the start of the list.
@@ -179,7 +194,7 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
         beforeNode.next match {
           case None =>
             throwIndexTooLarge()
-          case Some(nodeToDelete) =>
+          case Some(_) =>
             deleteNextNode(beforeNode)
         }
     }

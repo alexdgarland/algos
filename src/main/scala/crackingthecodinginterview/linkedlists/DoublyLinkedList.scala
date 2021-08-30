@@ -1,5 +1,7 @@
 package crackingthecodinginterview.linkedlists
 
+import scala.annotation.tailrec
+
 /***
  *
  * @param head First item in the list (may be null if list is empty).
@@ -64,6 +66,34 @@ case class DoublyLinkedList[T]
   }
 
   override private[linkedlists] def setToTail(node: Option[DoublyLinkedNode[T]]): Unit = tail = node
+
+  /**
+   * Doubly-linked list implementation runs backwards from the tail -
+   * this is _very slightly_ more efficient in that it only does one O(n) pass (doesn't check the list length first)
+   * but doesn't fundamentally change the time complexity.
+   *
+   * @param k reverse-index to retrieve node for
+   *  @return Option of node - if index is out of range None, otherwise Some(node)
+   */
+  override def kthFromLast(k: Int): Option[DoublyLinkedNode[T]] = {
+    // TODO - could maybe refactor the similar code used for apply so it can work backwards with different params.
+    //  It only differs in that it starts from tail and advances to prev rather than next.
+    @tailrec
+    def inner(nextNode: Option[DoublyLinkedNode[T]], remainingIndex: Int): Option[DoublyLinkedNode[T]] = {
+      nextNode match {
+        case None =>
+          None
+        case Some(node) =>
+          if(remainingIndex < 0)
+            None
+          else if(remainingIndex == 0)
+            Some(node)
+          else
+            inner(node.prev, remainingIndex - 1)
+      }
+    }
+    inner(tail, k)
+  }
 
 }
 

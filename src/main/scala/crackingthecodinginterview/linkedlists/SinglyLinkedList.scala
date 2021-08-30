@@ -44,6 +44,18 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
 
   override private[linkedlists] def setToTail(node: Option[SinglyLinkedNode[T]]): Unit = { }
 
+  /**
+   * Implement for singly-linked list using existing methods for length and retrieve-by-index (apply), both of which run in O(n).
+   *
+   * As far as I can see, this is equivalent in performance to the "runner pointer" solution from CTCI but makes more sense.
+   *
+   * @param k reverse-index to retrieve node for
+   *  @return Option of node - if index is out of range None, otherwise Some(node)
+   */
+  override def kthFromLast(k: Int): Option[SinglyLinkedNode[T]] = {
+    this(this.length - (k + 1))
+  }
+
 }
 
 object SinglyLinkedList {
