@@ -8,19 +8,29 @@ package object linkedlists {
   sealed trait ListNode[T, Self <: ListNode[T, Self]] {
     var value: T
     var next: Option[Self]
+    protected final def optStr(nodeOpt: Option[_], desc: String) =
+      s"[$desc node ${if(nodeOpt.isDefined) "present" else "missing"}]"
   }
 
   case class SinglyLinkedNode[T]
   (
     var value: T,
     var next: Option[SinglyLinkedNode[T]] = None
-  ) extends ListNode[T, SinglyLinkedNode[T]]
+  ) extends ListNode[T, SinglyLinkedNode[T]] {
+    override def toString: String = {
+      s"SinglyLinkedNode($value, ${optStr(next, "next")})"
+    }
+  }
 
   case class DoublyLinkedNode[T]
   (
     var value: T,
     var next: Option[DoublyLinkedNode[T]] = None,
     var prev: Option[DoublyLinkedNode[T]] = None
-  ) extends ListNode[T, DoublyLinkedNode[T]]
+  ) extends ListNode[T, DoublyLinkedNode[T]] {
+    override def toString: String = {
+      s"DoublyLinkedNode($value, ${optStr(prev, "previous")}, ${optStr(next, "next")})"
+    }
+  }
 
 }

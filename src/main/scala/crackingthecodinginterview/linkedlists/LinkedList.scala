@@ -46,6 +46,28 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
     inner(head, 0)
   }
 
+  /**
+   * Return a node from the list at a given index in O(n).
+   *
+   * @param index Index of node to retrieve
+   * @return Option of node - if index is out of range None, otherwise Some(node)
+   */
+  def apply(index: Int): Option[N] = {
+    @tailrec
+    def inner(nextNode: Option[N], remainingIndex: Int): Option[N] = {
+      nextNode match {
+        case None =>
+          None
+        case Some(node) =>
+          if(remainingIndex == 0)
+            Some(node)
+          else
+            inner(node.next, remainingIndex - 1)
+      }
+    }
+    inner(head, index)
+  }
+
   /***
    * Insert to the start of the list.
    *

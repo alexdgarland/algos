@@ -174,4 +174,12 @@ class SinglyLinkedListSpec extends AnyFlatSpec with should.Matchers {
     SinglyLinkedList.fromList(List(1, 2, 3)).length should be(3)
   }
 
+  "applying an index" should "be able to get appropriate node from list" in {
+    SinglyLinkedList.fromList(List(1, 2, 3))(1).get.value should be(2)
+  }
+
+  it should "return None where index is out of range" in {
+    SinglyLinkedList.fromList(List(1, 2, 3))(3) should be(None)
+  }
+
 }

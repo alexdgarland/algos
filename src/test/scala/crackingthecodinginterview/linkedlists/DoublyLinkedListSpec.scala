@@ -211,4 +211,12 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
     DoublyLinkedList.fromList(List(1, 2, 3)).length should be(3)
   }
 
+  "applying an index" should "be able to get appropriate node from list" in {
+    DoublyLinkedList.fromList(List(1, 2, 3))(1).get.value should be(2)
+  }
+
+  it should "return None where index is out of range" in {
+    DoublyLinkedList.fromList(List(1, 2, 3))(3) shouldBe None
+  }
+
 }
