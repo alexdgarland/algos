@@ -1,5 +1,6 @@
 package crackingthecodinginterview.linkedlists
 
+import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.{Map => MutableMap}
 
@@ -20,6 +21,29 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
       currentNode = currentNode.flatMap(move(_))
     }
     listBuffer.toList
+  }
+
+  /**
+   * Return the length of the linked list.
+   *
+   * Currently calculates it each time the method is called, in O(n).
+   *
+   * Alternatively, could store the length (giving low-cost constant-time retrieval) at the cost of:
+   *  - a very small (constant-time, 32-bit int) increase in space
+   *  - having to make sure that the length is updated every time the list is mutated -
+   *    this is an issue in particular because we have a deleteNode method which does not have access to the full list.
+   *
+   * @return length of the linked list
+   */
+  def length: Int = {
+    @tailrec
+    def inner(nextNode: Option[N], acc: Int): Int = {
+      nextNode match {
+        case None => acc
+        case Some(node) => inner(node.next, acc + 1)
+      }
+    }
+    inner(head, 0)
   }
 
   /***

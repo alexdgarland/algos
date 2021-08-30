@@ -203,4 +203,12 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
     }
   }
 
+  "size" should "return zero for an empty list" in {
+    DoublyLinkedList.fromList(List()).length should be(0)
+  }
+
+  it should "return correct size for populated list" in {
+    DoublyLinkedList.fromList(List(1, 2, 3)).length should be(3)
+  }
+
 }
