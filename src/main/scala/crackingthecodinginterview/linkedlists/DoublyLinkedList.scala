@@ -75,25 +75,7 @@ case class DoublyLinkedList[T]
    * @param k reverse-index to retrieve node for
    *  @return Option of node - if index is out of range None, otherwise Some(node)
    */
-  override def kthFromLast(k: Int): Option[DoublyLinkedNode[T]] = {
-    // TODO - could maybe refactor the similar code used for apply so it can work backwards with different params.
-    //  It only differs in that it starts from tail and advances to prev rather than next.
-    @tailrec
-    def inner(nextNode: Option[DoublyLinkedNode[T]], remainingIndex: Int): Option[DoublyLinkedNode[T]] = {
-      nextNode match {
-        case None =>
-          None
-        case Some(node) =>
-          if(remainingIndex < 0)
-            None
-          else if(remainingIndex == 0)
-            Some(node)
-          else
-            inner(node.prev, remainingIndex - 1)
-      }
-    }
-    inner(tail, k)
-  }
+  override def kthFromLast(k: Int): Option[DoublyLinkedNode[T]] = moveToIndex(tail, k, _.prev)
 
 }
 
