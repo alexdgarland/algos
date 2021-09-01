@@ -1,6 +1,7 @@
 package crackingthecodinginterview.linkedlists
 
-case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) extends LinkedList[T, SinglyLinkedNode[T], SinglyLinkedList[_]] {
+case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(implicit ordering: Ordering[T])
+  extends LinkedList[T, SinglyLinkedNode[T], SinglyLinkedList[_]] {
 
   /** *
    * Append a new value to the end of the linked-list.
@@ -22,7 +23,7 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
 
   def prepend(value: T): Unit = head = Some(SinglyLinkedNode(value, head))
 
-  def map[TT](f: T => TT): SinglyLinkedList[TT] = {
+  def map[TT](f: T => TT)(implicit ordering: Ordering[TT]): SinglyLinkedList[TT] = {
     new ListMapper[T, SinglyLinkedNode[T], SinglyLinkedList[T], TT, SinglyLinkedNode[TT], SinglyLinkedList[TT]]() {
       override def newList(): SinglyLinkedList[TT] = SinglyLinkedList()
       override def newNode(value: TT, previousNode: Option[SinglyLinkedNode[TT]]): SinglyLinkedNode[TT] =
@@ -47,13 +48,37 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None) ext
   /**
    * Implement for singly-linked list using existing methods for length and retrieve-by-index (apply), both of which run in O(n).
    *
-   * As far as I can see, this is equivalent in performance to the "runner pointer" solution from CTCI but makes more sense.
+   * As far as I can see, this is equivalent in complexity to the "runner pointer" solution from CTCI but makes more sense.
    *
    * @param k reverse-index to retrieve node for
    *  @return Option of node - if index is out of range None, otherwise Some(node)
    */
-  override def kthFromLast(k: Int): Option[SinglyLinkedNode[T]] = {
-    this(this.length - (k + 1))
+  override def kthFromLast(k: Int): Option[SinglyLinkedNode[T]] = this(this.length - (k + 1))
+
+  private case class PartitionSubListBuilder
+  (
+    var head: Option[SinglyLinkedNode[T]] = None,
+    var latest: Option[SinglyLinkedNode[T]] = None
+  ) {
+    def addNode(currentNodeOption: Option[SinglyLinkedNode[T]]): Unit = {
+      if (head.isEmpty) head = currentNodeOption
+      latest.foreach(_.next = currentNodeOption)
+      latest = currentNodeOption
+    }
+  }
+
+  override def partition(partitionValue: T): Unit = {
+    import ordering.mkOrderingOps
+    val leftTracker = PartitionSubListBuilder()
+    val rightTracker = PartitionSubListBuilder()
+    var currentNodeOption: Option[SinglyLinkedNode[T]] = head
+    while(currentNodeOption.isDefined) {
+      (if(currentNodeOption.get.value < partitionValue) leftTracker else rightTracker).addNode(currentNodeOption)
+      currentNodeOption = currentNodeOption.get.next
+    }
+    rightTracker.latest.foreach(_.next = None)
+    leftTracker.latest.foreach(_.next = rightTracker.head)
+    head = (if(leftTracker.head.isEmpty) rightTracker else leftTracker).head
   }
 
 }
@@ -72,7 +97,7 @@ object SinglyLinkedList {
    * @param list Scala list to convert to a linked list
    * @return
    */
-  def fromList[T](list: List[T]): SinglyLinkedList[T] = {
+  def fromList[T](list: List[T])(implicit ordering: Ordering[T]): SinglyLinkedList[T] = {
     val nodes = list.map(SinglyLinkedNode(_))
     (1 until nodes.length).foreach { i => nodes(i-1).next = Some(nodes(i)) }
     SinglyLinkedList(nodes.headOption)

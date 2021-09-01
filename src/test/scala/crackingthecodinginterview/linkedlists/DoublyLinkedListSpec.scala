@@ -24,7 +24,7 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
   }
 
   it should "be convertible from and to a Scala list when empty" in {
-    val scalaList = List()
+    val scalaList = List[Int]()
     DoublyLinkedList.fromList(scalaList).toList() should be(scalaList)
   }
 
@@ -34,7 +34,7 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
   }
 
   it should "be convertible to a reversed Scala list when empty" in {
-    val scalaList = List()
+    val scalaList = List[Int]()
     DoublyLinkedList.fromList(scalaList).toListReversed should be(scalaList)
   }
 
@@ -124,7 +124,7 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
 
   it should "not allow deletion from an empty list" in {
     assertThrows[IndexOutOfBoundsException] {
-      DoublyLinkedList().deleteAt(0)
+      DoublyLinkedList[Int]().deleteAt(0)
     }
   }
 
@@ -204,7 +204,7 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
   }
 
   "size" should "return zero for an empty list" in {
-    DoublyLinkedList.fromList(List()).length should be(0)
+    DoublyLinkedList.fromList(List[Int]()).length should be(0)
   }
 
   it should "return correct size for populated list" in {
@@ -212,11 +212,13 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
   }
 
   "applying an index" should "be able to get appropriate node from list" in {
-    DoublyLinkedList.fromList(List(1, 2, 3))(1).map(_.value) should be(Some(2))
+    val linkedList = DoublyLinkedList.fromList(List(1, 2, 3))
+    linkedList(1).map(_.value) should be(Some(2))
   }
 
   it should "return None where index is out of range" in {
-    DoublyLinkedList.fromList(List(1, 2, 3))(3) shouldBe None
+    val linkedList = DoublyLinkedList.fromList(List(1, 2, 3))
+    linkedList(3) shouldBe None
   }
 
   "kthFromLast" should "return expected node when available" in {
@@ -227,5 +229,18 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
   it should "return None where k is out of range" in {
     DoublyLinkedList.fromList(List(1, 2, 3, 4, 5, 6)).kthFromLast(6) shouldBe None
   }
+
+  // TODO - uncomment this test and impl required code
+//  "partition" should "rearrange the list as expected" in {
+//    val originalValues = List(3, 5, 8, 5, 10, 2, 1)
+//    val linkedList = DoublyLinkedList.fromList(originalValues)
+//
+//    linkedList.partition(5)
+//
+//    val newValues = linkedList.toList()
+//    newValues.take(3).foreach(_ should be < 5)
+//    newValues.drop(3).foreach(_ should be >= 5)
+//    newValues.sorted should be(originalValues.sorted)
+//  }
 
 }

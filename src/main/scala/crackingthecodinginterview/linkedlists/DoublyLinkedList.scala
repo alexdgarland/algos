@@ -1,7 +1,5 @@
 package crackingthecodinginterview.linkedlists
 
-import scala.annotation.tailrec
-
 /***
  *
  * @param head First item in the list (may be null if list is empty).
@@ -12,7 +10,7 @@ case class DoublyLinkedList[T]
 (
   var head: Option[DoublyLinkedNode[T]] = None,
   var tail: Option[DoublyLinkedNode[T]] = None
-) extends LinkedList[T, DoublyLinkedNode[T], DoublyLinkedList[_]] {
+)(implicit ordering: Ordering[T]) extends LinkedList[T, DoublyLinkedNode[T], DoublyLinkedList[_]] {
 
   def toListReversed: List[T] = toList(tail, node => node.prev)
 
@@ -37,7 +35,7 @@ case class DoublyLinkedList[T]
     tail = newNode
   }
 
-  override def map[TT](f: T => TT): DoublyLinkedList[TT] = {
+  override def map[TT](f: T => TT)(implicit ordering: Ordering[TT]): DoublyLinkedList[TT] = {
     new ListMapper[T, DoublyLinkedNode[T], DoublyLinkedList[T], TT, DoublyLinkedNode[TT], DoublyLinkedList[TT]]() {
       override def newList(): DoublyLinkedList[TT] = DoublyLinkedList()
       override def newNode(value: TT, previousNode: Option[DoublyLinkedNode[TT]]): DoublyLinkedNode[TT] =
@@ -77,6 +75,10 @@ case class DoublyLinkedList[T]
    */
   override def kthFromLast(k: Int): Option[DoublyLinkedNode[T]] = moveToIndex(tail, k, _.prev)
 
+  override def partition(partitionValue: T): Unit = {
+    // TODO
+  }
+
 }
 
 object DoublyLinkedList {
@@ -88,7 +90,7 @@ object DoublyLinkedList {
    * @tparam T Type of the values.
    * @return
    */
-  def fromList[T](list: List[T]): DoublyLinkedList[T] = {
+  def fromList[T](list: List[T])(implicit ordering: Ordering[T]): DoublyLinkedList[T] = {
     val nodes = list.map(DoublyLinkedNode(_))
     val linkedList = DoublyLinkedList(nodes.headOption, nodes.headOption)
     (1 until nodes.length).foreach { i =>

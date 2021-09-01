@@ -134,7 +134,7 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
     }
   }
 
-  def map[TT](f: T => TT): LL
+  def map[TT](f: T => TT)(implicit ordering: Ordering[TT]): LL
 
   /***
    * Insert a value to an arbitrary point in the list represented by a supplied index.
@@ -225,6 +225,14 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
         }
     }
   }
+
+  /**
+   * Rearrange nodes in the list so that all nodes less than the partition value appear before
+   * all nodes that are greater than or equal to the value.
+   *
+   * @param partitionValue Value around which to partition the list
+   */
+  def partition(partitionValue: T): Unit
 
 }
 

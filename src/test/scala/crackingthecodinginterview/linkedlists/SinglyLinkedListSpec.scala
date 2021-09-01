@@ -5,13 +5,13 @@ import org.scalatest.matchers.should
 
 class SinglyLinkedListSpec extends AnyFlatSpec with should.Matchers {
 
-  "LinkedList" should "be convertible from and to a Scala list when populated" in {
+  "SinglyLinkedList" should "be convertible from and to a Scala list when populated" in {
     val scalaList = List(1, 2, 3, 4, 5, 6)
     SinglyLinkedList.fromList(scalaList).toList() should be(scalaList)
   }
 
   it should "be convertible from and to a Scala list when empty" in {
-    val scalaList = List()
+    val scalaList = List[Int]()
     SinglyLinkedList.fromList(scalaList).toList() should be(scalaList)
   }
 
@@ -85,7 +85,7 @@ class SinglyLinkedListSpec extends AnyFlatSpec with should.Matchers {
   }
 
   it should "not allow deletion from an empty list" in {
-    val linkedList = SinglyLinkedList()
+    val linkedList = SinglyLinkedList[Int]()
     assertThrows[IndexOutOfBoundsException] {
       linkedList.deleteAt(0)
     }
@@ -167,7 +167,7 @@ class SinglyLinkedListSpec extends AnyFlatSpec with should.Matchers {
   }
 
   "size" should "return zero for an empty list" in {
-    SinglyLinkedList.fromList(List()).length should be(0)
+    SinglyLinkedList.fromList(List[Int]()).length should be(0)
   }
 
   it should "return correct size for populated list" in {
@@ -175,11 +175,13 @@ class SinglyLinkedListSpec extends AnyFlatSpec with should.Matchers {
   }
 
   "applying an index" should "be able to get appropriate node from list" in {
-    SinglyLinkedList.fromList(List(1, 2, 3))(1).map(_.value) should be(Some(2))
+    val linkedList = SinglyLinkedList.fromList(List(1, 2, 3))
+    linkedList(1).map(_.value) should be(Some(2))
   }
 
   it should "return None where index is out of range" in {
-    SinglyLinkedList.fromList(List(1, 2, 3))(3) should be(None)
+    val linkedList = SinglyLinkedList.fromList(List(1, 2, 3))
+    linkedList(3) should be(None)
   }
 
   "kthFromLast" should "return expected node when available" in {
@@ -189,6 +191,16 @@ class SinglyLinkedListSpec extends AnyFlatSpec with should.Matchers {
 
   it should "return None where k is out of range" in {
     SinglyLinkedList.fromList(List(1, 2, 3, 4, 5, 6)).kthFromLast(6) shouldBe None
+  }
+
+  "partition" should "rearrange the list as expected" in {
+    val originalValues = List(3, 5, 8, 5, 10, 2, 1)
+    val linkedList = SinglyLinkedList.fromList(originalValues)
+    linkedList.partition(5)
+    val newValues = linkedList.toList()
+    newValues.take(3).foreach(_ should be < 5)
+    newValues.drop(3).foreach(_ should be >= 5)
+    newValues.sorted should be(originalValues.sorted)
   }
 
 }
