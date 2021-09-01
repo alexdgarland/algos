@@ -69,16 +69,16 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(imp
 
   override def partition(partitionValue: T): Unit = {
     import ordering.mkOrderingOps
-    val leftTracker = PartitionSubListBuilder()
-    val rightTracker = PartitionSubListBuilder()
+    val leftBuilder = PartitionSubListBuilder()
+    val rightBuilder = PartitionSubListBuilder()
     var currentNodeOption: Option[SinglyLinkedNode[T]] = head
     while(currentNodeOption.isDefined) {
-      (if(currentNodeOption.get.value < partitionValue) leftTracker else rightTracker).addNode(currentNodeOption)
+      (if(currentNodeOption.get.value < partitionValue) leftBuilder else rightBuilder).addNode(currentNodeOption)
       currentNodeOption = currentNodeOption.get.next
     }
-    rightTracker.latest.foreach(_.next = None)
-    leftTracker.latest.foreach(_.next = rightTracker.head)
-    head = (if(leftTracker.head.isEmpty) rightTracker else leftTracker).head
+    rightBuilder.latest.foreach(_.next = None)
+    leftBuilder.latest.foreach(_.next = rightBuilder.head)
+    head = (if(leftBuilder.head.isEmpty) rightBuilder else leftBuilder).head
   }
 
 }

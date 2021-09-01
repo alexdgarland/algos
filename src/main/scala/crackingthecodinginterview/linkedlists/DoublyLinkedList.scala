@@ -75,34 +75,20 @@ case class DoublyLinkedList[T]
    */
   override def kthFromLast(k: Int): Option[DoublyLinkedNode[T]] = moveToIndex(tail, k, _.prev)
 
-  private case class PartitionSubListBuilder
-  (
-    var head: Option[DoublyLinkedNode[T]] = None,
-    var latest: Option[DoublyLinkedNode[T]] = None
-  ) {
-    def addNode(currentNodeOption: Option[DoublyLinkedNode[T]]): Unit = {
-      if (head.isEmpty) head = currentNodeOption
-      latest.foreach(_.next = currentNodeOption)
-      currentNodeOption.foreach(_.prev = latest)
-      latest = currentNodeOption
-    }
-  }
-
   override def partition(partitionValue: T): Unit = {
     import ordering.mkOrderingOps
-    val leftTracker = PartitionSubListBuilder()
-    val rightTracker = PartitionSubListBuilder()
+    val leftSublist = DoublyLinkedList[T]()
+    val rightSublist = DoublyLinkedList[T]()
     var currentNodeOption: Option[DoublyLinkedNode[T]] = head
     while(currentNodeOption.isDefined) {
-      (if(currentNodeOption.get.value < partitionValue) leftTracker else rightTracker).addNode(currentNodeOption)
+      val currentValue = currentNodeOption.get.value
+      (if(currentValue < partitionValue) leftSublist else rightSublist).append(currentValue)
       currentNodeOption = currentNodeOption.get.next
     }
-    leftTracker.head.foreach(_.prev = None)
-    leftTracker.latest.foreach(_.next = rightTracker.head)
-    rightTracker.head.foreach(_.prev = leftTracker.latest)
-    rightTracker.latest.foreach(_.next = None)
-    head = (if(leftTracker.head.isEmpty) rightTracker else leftTracker).head
-    tail = (if(rightTracker.head.isEmpty) leftTracker else rightTracker).latest
+    leftSublist.tail.foreach(_.next = rightSublist.head)
+    rightSublist.head.foreach(_.prev = leftSublist.tail)
+    head = (if(leftSublist.head.isEmpty) rightSublist else leftSublist).head
+    tail = (if(rightSublist.head.isEmpty) leftSublist else rightSublist).tail
   }
 
 }
