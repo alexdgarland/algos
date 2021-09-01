@@ -230,17 +230,21 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
     DoublyLinkedList.fromList(List(1, 2, 3, 4, 5, 6)).kthFromLast(6) shouldBe None
   }
 
-  // TODO - uncomment this test and impl required code
-//  "partition" should "rearrange the list as expected" in {
-//    val originalValues = List(3, 5, 8, 5, 10, 2, 1)
-//    val linkedList = DoublyLinkedList.fromList(originalValues)
-//
-//    linkedList.partition(5)
-//
-//    val newValues = linkedList.toList()
-//    newValues.take(3).foreach(_ should be < 5)
-//    newValues.drop(3).foreach(_ should be >= 5)
-//    newValues.sorted should be(originalValues.sorted)
-//  }
+  "partition" should "rearrange the list as expected" in {
+    val originalValues = List(3, 5, 8, 5, 10, 2, 1)
+    val linkedList = DoublyLinkedList.fromList(originalValues)
+
+    linkedList.partition(5)
+
+    val newValuesFromHead = linkedList.toList()
+    newValuesFromHead.take(3).foreach(_ should be < 5)
+    newValuesFromHead.drop(3).foreach(_ should be >= 5)
+    newValuesFromHead.sorted should be(originalValues.sorted)
+
+    val newValuesFromTail = linkedList.toListReversed
+    newValuesFromTail.take(4).foreach(_ should be >= 5)
+    newValuesFromTail.drop(4).foreach(_ should be < 5)
+    newValuesFromTail.sorted should be(originalValues.sorted)
+  }
 
 }

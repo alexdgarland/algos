@@ -75,8 +75,34 @@ case class DoublyLinkedList[T]
    */
   override def kthFromLast(k: Int): Option[DoublyLinkedNode[T]] = moveToIndex(tail, k, _.prev)
 
+  private case class PartitionSubListBuilder
+  (
+    var head: Option[DoublyLinkedNode[T]] = None,
+    var latest: Option[DoublyLinkedNode[T]] = None
+  ) {
+    def addNode(currentNodeOption: Option[DoublyLinkedNode[T]]): Unit = {
+      if (head.isEmpty) head = currentNodeOption
+      latest.foreach(_.next = currentNodeOption)
+      currentNodeOption.foreach(_.prev = latest)
+      latest = currentNodeOption
+    }
+  }
+
   override def partition(partitionValue: T): Unit = {
-    // TODO
+    import ordering.mkOrderingOps
+    val leftTracker = PartitionSubListBuilder()
+    val rightTracker = PartitionSubListBuilder()
+    var currentNodeOption: Option[DoublyLinkedNode[T]] = head
+    while(currentNodeOption.isDefined) {
+      (if(currentNodeOption.get.value < partitionValue) leftTracker else rightTracker).addNode(currentNodeOption)
+      currentNodeOption = currentNodeOption.get.next
+    }
+    leftTracker.head.foreach(_.prev = None)
+    leftTracker.latest.foreach(_.next = rightTracker.head)
+    rightTracker.head.foreach(_.prev = leftTracker.latest)
+    rightTracker.latest.foreach(_.next = None)
+    head = (if(leftTracker.head.isEmpty) rightTracker else leftTracker).head
+    tail = (if(rightTracker.head.isEmpty) leftTracker else rightTracker).latest
   }
 
 }
