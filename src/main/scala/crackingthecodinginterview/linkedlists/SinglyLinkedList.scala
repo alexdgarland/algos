@@ -55,30 +55,17 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(imp
    */
   override def kthFromLast(k: Int): Option[SinglyLinkedNode[T]] = this(this.length - (k + 1))
 
-  private case class PartitionSubListBuilder
-  (
-    var head: Option[SinglyLinkedNode[T]] = None,
-    var latest: Option[SinglyLinkedNode[T]] = None
-  ) {
-    def addNode(currentNodeOption: Option[SinglyLinkedNode[T]]): Unit = {
-      if (head.isEmpty) head = currentNodeOption
-      latest.foreach(_.next = currentNodeOption)
-      latest = currentNodeOption
-    }
-  }
-
   override def partition(partitionValue: T): Unit = {
     import ordering.mkOrderingOps
-    val leftBuilder = PartitionSubListBuilder()
-    val rightBuilder = PartitionSubListBuilder()
+    val leftBuilder = SinglyLinkedList.ListBuilder()
+    val rightBuilder = SinglyLinkedList.ListBuilder()
     var currentNodeOption: Option[SinglyLinkedNode[T]] = head
     while(currentNodeOption.isDefined) {
-      (if(currentNodeOption.get.value < partitionValue) leftBuilder else rightBuilder).addNode(currentNodeOption)
-      currentNodeOption = currentNodeOption.get.next
+      val builder = if(currentNodeOption.exists(_.value < partitionValue)) leftBuilder else rightBuilder
+      builder.addNodeOption(currentNodeOption)
+      currentNodeOption = currentNodeOption.flatMap(_.next)
     }
-    rightBuilder.latest.foreach(_.next = None)
-    leftBuilder.latest.foreach(_.next = rightBuilder.head)
-    head = (if(leftBuilder.head.isEmpty) rightBuilder else leftBuilder).head
+    head = (leftBuilder + rightBuilder).build().head
   }
 
 }
@@ -120,31 +107,55 @@ object SinglyLinkedList {
     }
   }
 
+  protected case class ListBuilder[T]
+  (
+    var head: Option[SinglyLinkedNode[T]] = None,
+    var latest: Option[SinglyLinkedNode[T]] = None
+  )(implicit ordering: Ordering[T]) {
+
+    def addNodeOption(nodeOption: Option[SinglyLinkedNode[T]]): Unit = {
+      if (head.isEmpty) head = nodeOption
+      latest.foreach(_.next = nodeOption)
+      latest = nodeOption
+    }
+
+    def addValue(value: T): Unit = addNodeOption(Some(SinglyLinkedNode(value)))
+
+    def +(that: ListBuilder[T]): ListBuilder[T] = {
+      addNodeOption(that.head)
+      latest = that.latest
+      this
+    }
+
+    def build(): SinglyLinkedList[T] = {
+      latest.foreach(_.next = None)
+      SinglyLinkedList(head)
+    }
+
+  }
+
   /**
    * Take two lists of ints, representing a number with each node as a single digit in reverse order,
-   * and add them together maintaining the same representation in an efficient way.
+   * and add them together maintaining the same representation in an efficient way (O(n)).
    *
    * @param list1 First list to add
    * @param list2 Second list to add
    * @return
    */
   def sumLists(list1: SinglyLinkedList[Int], list2: SinglyLinkedList[Int]): SinglyLinkedList[Int] = {
-    val summedList = SinglyLinkedList[Int]()
+    val builder = SinglyLinkedList.ListBuilder[Int]()
     var list1Node = list1.head
     var list2Node = list2.head
     var carry = false
-    // Loop runs in O(n)
     while(list1Node.isDefined || list2Node.isDefined) {
       val total = list1Node.map(_.value).getOrElse(0) + list2Node.map(_.value).getOrElse(0) + (if(carry) 1 else 0)
       carry = total > 9
-      // TODO - append runs in O(n), making the overall algorithm O(n ^ 2) - once we are confident on correctness,
-      //  we can improve on this by keeping track of the latest node added
-      //  (possibly reusing the class we're currently calling PartitionSubListBuilder)
-      summedList.append(total % 10)
+      builder.addValue(total % 10)
       list1Node = list1Node.flatMap(_.next)
       list2Node = list2Node.flatMap(_.next)
     }
-    summedList
+    if(carry) builder.addValue(1)
+    builder.build()
   }
 
 }

@@ -204,10 +204,21 @@ class SinglyLinkedListSpec extends AnyFlatSpec with should.Matchers {
   }
 
   "sumLists function" should "be able to add two lists of ints as specified" in {
-    val list617 = SinglyLinkedList.fromList(List(7, 1, 6))
-    val list295 = SinglyLinkedList.fromList(List(5, 9, 2))
-    val expectedList912 = SinglyLinkedList.fromList(List(2, 1, 9))
-    SinglyLinkedList.sumLists(list617, list295) should be(expectedList912)
+    val list1 = SinglyLinkedList.fromList(List(7, 1, 6))
+    val list2 = SinglyLinkedList.fromList(List(5, 9, 2))
+    SinglyLinkedList.sumLists(list1, list2).toList() should be(List(2, 1, 9))
+  }
+
+  it should "be able to add two lists of ints of different lengths" in {
+    val list1 = SinglyLinkedList.fromList(List(7, 1, 6, 1))
+    val list2 = SinglyLinkedList.fromList(List(5, 9, 2))
+    SinglyLinkedList.sumLists(list1, list2).toList() should be(List(2, 1, 9, 1))
+  }
+
+  it should "be able to add two lists when the total length is longer due to a carry" in {
+    val list1 = SinglyLinkedList.fromList(List(7, 9, 6))
+    val list2 = SinglyLinkedList.fromList(List(5, 9, 3))
+    SinglyLinkedList.sumLists(list1, list2).toList() should be(List(2, 9, 0, 1))
   }
 
 }
