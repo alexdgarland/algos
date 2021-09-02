@@ -120,4 +120,31 @@ object SinglyLinkedList {
     }
   }
 
+  /**
+   * Take two lists of ints, representing a number with each node as a single digit in reverse order,
+   * and add them together maintaining the same representation in an efficient way.
+   *
+   * @param list1 First list to add
+   * @param list2 Second list to add
+   * @return
+   */
+  def sumLists(list1: SinglyLinkedList[Int], list2: SinglyLinkedList[Int]): SinglyLinkedList[Int] = {
+    val summedList = SinglyLinkedList[Int]()
+    var list1Node = list1.head
+    var list2Node = list2.head
+    var carry = false
+    // Loop runs in O(n)
+    while(list1Node.isDefined || list2Node.isDefined) {
+      val total = list1Node.map(_.value).getOrElse(0) + list2Node.map(_.value).getOrElse(0) + (if(carry) 1 else 0)
+      carry = total > 9
+      // TODO - append runs in O(n), making the overall algorithm O(n ^ 2) - once we are confident on correctness,
+      //  we can improve on this by keeping track of the latest node added
+      //  (possibly reusing the class we're currently calling PartitionSubListBuilder)
+      summedList.append(total % 10)
+      list1Node = list1Node.flatMap(_.next)
+      list2Node = list2Node.flatMap(_.next)
+    }
+    summedList
+  }
+
 }

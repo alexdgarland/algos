@@ -203,4 +203,11 @@ class SinglyLinkedListSpec extends AnyFlatSpec with should.Matchers {
     newValues.sorted should be(originalValues.sorted)
   }
 
+  "sumLists function" should "be able to add two lists of ints as specified" in {
+    val list617 = SinglyLinkedList.fromList(List(7, 1, 6))
+    val list295 = SinglyLinkedList.fromList(List(5, 9, 2))
+    val expectedList912 = SinglyLinkedList.fromList(List(2, 1, 9))
+    SinglyLinkedList.sumLists(list617, list295) should be(expectedList912)
+  }
+
 }

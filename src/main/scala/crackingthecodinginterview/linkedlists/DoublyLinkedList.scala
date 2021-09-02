@@ -145,4 +145,8 @@ object DoublyLinkedList {
     }
   }
 
+  def sumLists(list1: DoublyLinkedList[Int], list2: DoublyLinkedList[Int]): DoublyLinkedList[Int] = {
+    DoublyLinkedList()
+  }
+
 }
