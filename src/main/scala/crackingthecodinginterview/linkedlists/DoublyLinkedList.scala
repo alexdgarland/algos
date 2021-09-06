@@ -1,5 +1,8 @@
 package crackingthecodinginterview.linkedlists
 
+import crackingthecodinginterview.linkedlists
+import crackingthecodinginterview.linkedlists.SinglyLinkedList.ListBuilder
+
 /***
  *
  * @param head First item in the list (may be null if list is empty).
@@ -154,24 +157,11 @@ object DoublyLinkedList {
    * @return
    */
   def sumLists(list1: DoublyLinkedList[Int], list2: DoublyLinkedList[Int]): DoublyLinkedList[Int] = {
-    def getValue(nodeOption: Option[DoublyLinkedNode[Int]]): Int = nodeOption.map(_.value).getOrElse(0)
-
-    val builder = DoublyLinkedList[Int]()
-    var list1Node = list1.head
-    var list2Node = list2.head
-    var carry = false
-
-    while(list1Node.isDefined || list2Node.isDefined) {
-      val total = getValue(list1Node) + getValue(list2Node) + (if(carry) 1 else 0)
-      carry = total > 9
-      builder.append(total % 10)
-      list1Node = list1Node.flatMap(_.next)
-      list2Node = list2Node.flatMap(_.next)
-    }
-
-    if(carry) builder.append(1)
-
-    builder
+    new IntListSummation[DoublyLinkedNode[Int], DoublyLinkedList[Int], DoublyLinkedList[Int]] {
+      override def newBuilder(): DoublyLinkedList[Int] = DoublyLinkedList[Int]()
+      override def addValue(builder: DoublyLinkedList[Int], value: Int): Unit = builder.append(value)
+      override def build(builder: DoublyLinkedList[Int]): DoublyLinkedList[Int] = builder
+    }.sumLists(list1, list2)
   }
 
 }

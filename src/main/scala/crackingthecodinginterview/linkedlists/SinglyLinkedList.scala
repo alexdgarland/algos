@@ -143,25 +143,11 @@ object SinglyLinkedList {
    * @return
    */
   def sumLists(list1: SinglyLinkedList[Int], list2: SinglyLinkedList[Int]): SinglyLinkedList[Int] = {
-
-    def getValue(nodeOption: Option[SinglyLinkedNode[Int]]): Int = nodeOption.map(_.value).getOrElse(0)
-
-    val builder = SinglyLinkedList.ListBuilder[Int]()
-    var list1Node = list1.head
-    var list2Node = list2.head
-    var carry = false
-
-    while(list1Node.isDefined || list2Node.isDefined) {
-      val total = getValue(list1Node) + getValue(list2Node) + (if(carry) 1 else 0)
-      carry = total > 9
-      builder.addValue(total % 10)
-      list1Node = list1Node.flatMap(_.next)
-      list2Node = list2Node.flatMap(_.next)
-    }
-
-    if(carry) builder.addValue(1)
-
-    builder.build()
+    new IntListSummation[SinglyLinkedNode[Int], SinglyLinkedList[Int], SinglyLinkedList.ListBuilder[Int]] {
+      override def newBuilder(): ListBuilder[Int] = SinglyLinkedList.ListBuilder[Int]()
+      override def addValue(builder: ListBuilder[Int], value: Int): Unit = builder.addValue(value)
+      override def build(builder: ListBuilder[Int]): SinglyLinkedList[Int] = builder.build()
+    }.sumLists(list1, list2)
   }
 
 }
