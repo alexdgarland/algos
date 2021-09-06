@@ -247,4 +247,25 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
     newValuesFromTail.sorted should be(originalValues.sorted)
   }
 
+  "sumLists function" should "be able to add two lists of ints as specified" in {
+    val list1 = DoublyLinkedList.fromList(List(7, 1, 6))
+    val list2 = DoublyLinkedList.fromList(List(5, 9, 2))
+    val summed = DoublyLinkedList.sumLists(list1, list2)
+    biDirectionalCompare(summed, List(2, 1, 9))
+  }
+
+  it should "be able to add two lists of ints of different lengths" in {
+    val list1 = DoublyLinkedList.fromList(List(7, 1, 6, 1))
+    val list2 = DoublyLinkedList.fromList(List(5, 9, 2))
+    val summed = DoublyLinkedList.sumLists(list1, list2)
+    biDirectionalCompare(summed, List(2, 1, 9, 1))
+  }
+
+  it should "be able to add two lists when the total length is longer due to a carry" in {
+    val list1 = DoublyLinkedList.fromList(List(7, 9, 6))
+    val list2 = DoublyLinkedList.fromList(List(5, 9, 3))
+    val summed = DoublyLinkedList.sumLists(list1, list2)
+    biDirectionalCompare(summed, List(2, 9, 0, 1))
+  }
+
 }

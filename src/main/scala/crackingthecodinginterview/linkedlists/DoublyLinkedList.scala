@@ -145,8 +145,33 @@ object DoublyLinkedList {
     }
   }
 
+  /**
+   * Take two lists of ints, representing a number with each node as a single digit in reverse order,
+   * and add them together maintaining the same representation in an efficient way (O(n)).
+   *
+   * @param list1 First list to add
+   * @param list2 Second list to add
+   * @return
+   */
   def sumLists(list1: DoublyLinkedList[Int], list2: DoublyLinkedList[Int]): DoublyLinkedList[Int] = {
-    DoublyLinkedList()
+    def getValue(nodeOption: Option[DoublyLinkedNode[Int]]): Int = nodeOption.map(_.value).getOrElse(0)
+
+    val builder = DoublyLinkedList[Int]()
+    var list1Node = list1.head
+    var list2Node = list2.head
+    var carry = false
+
+    while(list1Node.isDefined || list2Node.isDefined) {
+      val total = getValue(list1Node) + getValue(list2Node) + (if(carry) 1 else 0)
+      carry = total > 9
+      builder.append(total % 10)
+      list1Node = list1Node.flatMap(_.next)
+      list2Node = list2Node.flatMap(_.next)
+    }
+
+    if(carry) builder.append(1)
+
+    builder
   }
 
 }
