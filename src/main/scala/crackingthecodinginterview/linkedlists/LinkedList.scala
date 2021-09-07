@@ -234,4 +234,9 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
    */
   def partition(partitionValue: T): Unit
 
+  /**
+   * Perform an in-place reversal of the nodes in the list.
+   */
+  def reverse(): Unit
+
 }

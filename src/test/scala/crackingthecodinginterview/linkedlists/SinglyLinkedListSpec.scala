@@ -221,4 +221,16 @@ class SinglyLinkedListSpec extends AnyFlatSpec with should.Matchers {
     SinglyLinkedList.sumLists(list1, list2).toList() should be(List(2, 9, 0, 1))
   }
 
+  "reverse" should "perform an in-place reversal of list nodes" in {
+    val linkedList = SinglyLinkedList.fromList(List(1, 2, 3))
+    linkedList.reverse()
+    linkedList.toList() should be(List(3, 2, 1))
+  }
+
+  it should "be able to handle an empty list" in {
+    val linkedList = SinglyLinkedList[Int]()
+    linkedList.reverse()
+    linkedList.toList() should be(List())
+  }
+
 }

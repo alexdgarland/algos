@@ -268,4 +268,16 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
     biDirectionalCompare(summed, List(2, 9, 0, 1))
   }
 
+  "reverse" should "perform an in-place reversal of list nodes" in {
+    val linkedList = DoublyLinkedList.fromList(List(1, 2, 3))
+    linkedList.reverse()
+    biDirectionalCompare(linkedList, List(3, 2, 1))
+  }
+
+  it should "be able to handle an empty list" in {
+    val linkedList = DoublyLinkedList[Int]()
+    linkedList.reverse()
+    biDirectionalCompare(linkedList, List())
+  }
+
 }

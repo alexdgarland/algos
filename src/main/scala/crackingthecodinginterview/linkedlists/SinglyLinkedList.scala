@@ -68,6 +68,21 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(imp
     head = (leftBuilder + rightBuilder).build().head
   }
 
+  /**
+   * Perform an in-place reversal of the nodes in the list.
+   */
+  override def reverse(): Unit = {
+    var currentNode = head
+    var previousNode: Option[SinglyLinkedNode[T]] = None
+    while(currentNode.isDefined) {
+      val nextNode = currentNode.get.next
+      currentNode.get.next = previousNode
+      previousNode = currentNode
+      currentNode = nextNode
+    }
+    head = previousNode
+  }
+
 }
 
 object SinglyLinkedList {

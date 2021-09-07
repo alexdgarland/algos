@@ -94,6 +94,24 @@ case class DoublyLinkedList[T]
     tail = (if(rightSublist.head.isEmpty) leftSublist else rightSublist).tail
   }
 
+  /**
+   * Perform an in-place reversal of the nodes in the list.
+   */
+  override def reverse(): Unit = {
+    var currentNode = head
+    var previousNode: Option[DoublyLinkedNode[T]] = None
+    while(currentNode.isDefined) {
+      val nextNode = currentNode.get.next
+      currentNode.get.prev = nextNode
+      currentNode.get.next = previousNode
+      previousNode = currentNode
+      currentNode = nextNode
+    }
+    val temp = head
+    head = tail
+    tail = temp
+  }
+
 }
 
 object DoublyLinkedList {
