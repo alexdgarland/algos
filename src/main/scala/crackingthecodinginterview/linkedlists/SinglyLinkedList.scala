@@ -1,5 +1,6 @@
 package crackingthecodinginterview.linkedlists
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(implicit ordering: Ordering[T])
@@ -94,18 +95,20 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(imp
     // Do a single pass through the list in O(n) to get the length - this is (~) equivalent to using a runner pointer
     val length = this.length
     val stack = mutable.Stack[T]()
-    var currentNode: Option[SinglyLinkedNode[T]] = head
-    def forCheckLength(f: T => Unit): Unit = {
-      (1 to length / 2).foreach { _ =>
-        currentNode.foreach{ node =>
-          f(node.value)
-          currentNode = node.next
-        }
+
+    @tailrec
+    def execForLength(length: Int, startNode: Option[SinglyLinkedNode[T]], f: T => Unit): Option[SinglyLinkedNode[T]] = {
+      if (length == 0) {
+        startNode
+      }
+      else {
+        startNode.foreach(node => f(node.value))
+        execForLength(length -1, startNode.flatMap(_.next), f)
       }
     }
-    forCheckLength { value => stack.push(value) }
-    if(length % 2 == 1) currentNode = currentNode.flatMap(_.next)
-    forCheckLength { value => if(stack.pop() != value) return false }
+    val lastStackedNode = execForLength(length / 2, head, value => stack.push(value))
+    val firstCheckNode = if(length % 2 == 0) lastStackedNode else lastStackedNode.flatMap(_.next)
+    execForLength(length / 2, firstCheckNode, value => if(stack.pop() != value) return false)
     true
   }
 
