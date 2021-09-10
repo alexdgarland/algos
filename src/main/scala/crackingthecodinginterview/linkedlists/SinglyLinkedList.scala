@@ -1,7 +1,6 @@
 package crackingthecodinginterview.linkedlists
 
 import scala.annotation.tailrec
-import scala.collection.mutable
 
 case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(implicit ordering: Ordering[T])
   extends LinkedList[T, SinglyLinkedNode[T], SinglyLinkedList[_]] {
@@ -92,24 +91,37 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(imp
    * @return
    */
   override def isPalindrome: Boolean = {
+
+    case class Accumulator(stack: List[T] = List(), nonMatchFound: Boolean = false)
+
+    type AccumulatorFunc = (T, List[T]) => Accumulator
+
+    case class IterState(node: Option[SinglyLinkedNode[T]], acc: Accumulator = Accumulator()) {
+      def next(f: AccumulatorFunc): IterState = IterState(node.flatMap(_.next), f(node.get.value, acc.stack))
+    }
+
     // Do a single pass through the list in O(n) to get the length - this is (~) equivalent to using a runner pointer
     val length = this.length
-    val stack = mutable.Stack[T]()
 
+    // We then run this function twice, but each recursive invocation only runs over half the list
+    // Given that each single invocation is constant-time (stack-style operations on Scala List only),
+    // the overall time complexity here is also O(n).
     @tailrec
-    def execForLength(length: Int, startNode: Option[SinglyLinkedNode[T]], f: T => Unit): Option[SinglyLinkedNode[T]] = {
-      if (length == 0) {
-        startNode
-      }
-      else {
-        startNode.foreach(node => f(node.value))
-        execForLength(length -1, startNode.flatMap(_.next), f)
-      }
+    def execForLength(state: IterState, f: AccumulatorFunc, remainingLength: Int = length / 2): IterState = {
+      if (remainingLength == 0 || state.acc.nonMatchFound) state
+      else execForLength(state.next(f), f, remainingLength -1)
     }
-    val lastStackedNode = execForLength(length / 2, head, value => stack.push(value))
-    val firstCheckNode = if(length % 2 == 0) lastStackedNode else lastStackedNode.flatMap(_.next)
-    execForLength(length / 2, firstCheckNode, value => if(stack.pop() != value) return false)
-    true
+
+    val stackingResult = execForLength(IterState(head), (value, stack) => Accumulator(value :: stack))
+
+    val firstCheckNode =  stackingResult.node.flatMap(if(length % 2 == 1) _.next else Some(_))
+
+    val foundAnyNonMatch = execForLength(
+      IterState(firstCheckNode, stackingResult.acc),
+      (value, stack) => Accumulator(stack.tail, stack.head != value)
+    ).acc.nonMatchFound
+
+    !foundAnyNonMatch
   }
 
 }
