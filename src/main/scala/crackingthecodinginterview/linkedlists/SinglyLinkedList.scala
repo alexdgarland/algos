@@ -1,5 +1,7 @@
 package crackingthecodinginterview.linkedlists
 
+import scala.collection.mutable
+
 case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(implicit ordering: Ordering[T])
   extends LinkedList[T, SinglyLinkedNode[T], SinglyLinkedList[_]] {
 
@@ -81,6 +83,30 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(imp
       currentNode = nextNode
     }
     head = previousNode
+  }
+
+  /**
+   * Indicate whether a linked list is a palindrome (values of nodes are the same reverse as forward.
+   *
+   * @return
+   */
+  override def isPalindrome: Boolean = {
+    // Do a single pass through the list in O(n) to get the length - this is (~) equivalent to using a runner pointer
+    val length = this.length
+    val stack = mutable.Stack[T]()
+    var currentNode: Option[SinglyLinkedNode[T]] = head
+    def forCheckLength(f: T => Unit): Unit = {
+      (1 to length / 2).foreach { _ =>
+        currentNode.foreach{ node =>
+          f(node.value)
+          currentNode = node.next
+        }
+      }
+    }
+    forCheckLength { value => stack.push(value) }
+    if(length % 2 == 1) currentNode = currentNode.flatMap(_.next)
+    forCheckLength { value => if(stack.pop() != value) return false }
+    true
   }
 
 }

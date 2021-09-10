@@ -239,4 +239,11 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
    */
   def reverse(): Unit
 
+  /**
+   * Indicate whether a linked list is a palindrome (values of nodes are the same reverse as forward.
+   *
+   * @return
+   */
+  def isPalindrome: Boolean
+
 }

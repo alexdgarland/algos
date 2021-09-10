@@ -233,4 +233,24 @@ class SinglyLinkedListSpec extends AnyFlatSpec with should.Matchers {
     linkedList.toList() should be(List())
   }
 
+  "isPalindrome" should "indicate that an empty list is a palindrome" in {
+    SinglyLinkedList.fromList(List[String]()).isPalindrome shouldBe true
+  }
+
+  it should "identify an even-length palindrome" in {
+    SinglyLinkedList.fromList(List("a", "b", "c", "b", "b", "c", "b", "a")).isPalindrome shouldBe true
+  }
+
+  it should "identify an odd-length palindrome" in {
+    SinglyLinkedList.fromList(List("a", "b", "c", "b", "c", "b", "a")).isPalindrome shouldBe true
+  }
+
+  it should "identify an even-length non-palindrome" in {
+    SinglyLinkedList.fromList(List("a", "b", "c", "b", "d", "c", "b", "a")).isPalindrome shouldBe false
+  }
+
+  it should "identify an odd-length non-palindrome" in {
+    SinglyLinkedList.fromList(List("a", "b", "c", "b", "d", "b", "a")).isPalindrome shouldBe false
+  }
+
 }

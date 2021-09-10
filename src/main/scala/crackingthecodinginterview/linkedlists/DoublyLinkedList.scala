@@ -112,6 +112,13 @@ case class DoublyLinkedList[T]
     tail = temp
   }
 
+  /**
+   * Indicate whether a linked list is a palindrome (values of nodes are the same reverse as forward.
+   *
+   * @return
+   */
+  override def isPalindrome: Boolean = ???
+
 }
 
 object DoublyLinkedList {
