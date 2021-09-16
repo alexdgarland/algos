@@ -3,6 +3,8 @@ package crackingthecodinginterview.linkedlists
 import crackingthecodinginterview.linkedlists
 import crackingthecodinginterview.linkedlists.SinglyLinkedList.ListBuilder
 
+import scala.annotation.tailrec
+
 /***
  *
  * @param head First item in the list (may be null if list is empty).
@@ -118,19 +120,20 @@ case class DoublyLinkedList[T]
    * @return
    */
   override def isPalindrome: Boolean = {
-    // Single O(n) pass to get length
-    val halfLength = this.length / 2
-    // Converge from each end checking if characters match (for DoublyLinkedList we don't need a separate stack)
-    var currentLeft = head
-    var currentRight = tail
-    (1 to halfLength).foreach { _ =>
-      if(currentLeft.get.value != currentRight.get.value) {
-        return false
-      }
-      currentLeft = currentLeft.get.next
-      currentRight = currentRight.get.prev
+    @tailrec
+    def inner
+    (
+      remainingLength: Int,
+      currentLeft: Option[DoublyLinkedNode[T]],
+      currentRight: Option[DoublyLinkedNode[T]]
+    ): Boolean = {
+      if (remainingLength == 0) true
+      else if (currentLeft.get.value != currentRight.get.value) false
+      else inner(remainingLength - 1, currentLeft.get.next, currentRight.get.prev)
     }
-    true
+    // Single O(n) pass to get length, then converge recursively from each end, also in O(n) -
+    // for DoublyLinkList don't need separate stack
+    inner(this.length / 2, head, tail)
   }
 
 }
