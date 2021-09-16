@@ -280,4 +280,24 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
     biDirectionalCompare(linkedList, List())
   }
 
+  "isPalindrome" should "indicate that an empty list is a palindrome" in {
+    DoublyLinkedList.fromList(List[String]()).isPalindrome shouldBe true
+  }
+
+  it should "identify an even-length palindrome" in {
+    DoublyLinkedList.fromList(List("a", "b", "c", "b", "b", "c", "b", "a")).isPalindrome shouldBe true
+  }
+
+  it should "identify an odd-length palindrome" in {
+    DoublyLinkedList.fromList(List("a", "b", "c", "b", "c", "b", "a")).isPalindrome shouldBe true
+  }
+
+  it should "identify an even-length non-palindrome" in {
+    DoublyLinkedList.fromList(List("a", "b", "c", "b", "d", "c", "b", "a")).isPalindrome shouldBe false
+  }
+
+  it should "identify an odd-length non-palindrome" in {
+    DoublyLinkedList.fromList(List("a", "b", "c", "b", "d", "b", "a")).isPalindrome shouldBe false
+  }
+
 }

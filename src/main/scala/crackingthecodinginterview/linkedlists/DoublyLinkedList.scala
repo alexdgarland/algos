@@ -117,7 +117,21 @@ case class DoublyLinkedList[T]
    *
    * @return
    */
-  override def isPalindrome: Boolean = ???
+  override def isPalindrome: Boolean = {
+    // Single O(n) pass to get length
+    val halfLength = this.length / 2
+    // Converge from each end checking if characters match (for DoublyLinkedList we don't need a separate stack)
+    var currentLeft = head
+    var currentRight = tail
+    (1 to halfLength).foreach { _ =>
+      if(currentLeft.get.value != currentRight.get.value) {
+        return false
+      }
+      currentLeft = currentLeft.get.next
+      currentRight = currentRight.get.prev
+    }
+    true
+  }
 
 }
 
