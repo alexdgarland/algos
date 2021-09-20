@@ -1,8 +1,5 @@
 package crackingthecodinginterview.linkedlists
 
-import crackingthecodinginterview.linkedlists
-import crackingthecodinginterview.linkedlists.SinglyLinkedList.ListBuilder
-
 import scala.annotation.tailrec
 
 /***

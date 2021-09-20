@@ -246,4 +246,16 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
    */
   def isPalindrome: Boolean
 
+  def forEachNode(f: N => Unit): Unit = {
+    var currentNode = head
+    while(currentNode.isDefined) {
+      currentNode.foreach { node =>
+        f(node)
+        currentNode = node.next
+      }
+    }
+  }
+
+  def forEachValue(f: T => Unit): Unit = forEachNode(node => f(node.value))
+
 }

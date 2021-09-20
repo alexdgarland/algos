@@ -253,4 +253,20 @@ class SinglyLinkedListSpec extends AnyFlatSpec with should.Matchers {
     SinglyLinkedList.fromList(List("a", "b", "c", "b", "d", "b", "a")).isPalindrome shouldBe false
   }
 
+  "intersectingNode" should "return None when lists do not intersect" in {
+    val list1 = SinglyLinkedList.fromList(List(1, 2, 3))
+    val list2 = SinglyLinkedList.fromList(List(1, 2, 3))
+    list1.intersectingNode(list2) shouldBe None
+  }
+
+  it should "return Some of correct node when lists do intersect" in {
+    val list1 = SinglyLinkedList.fromList(List(1, 2, 3, 4, 5))
+    val expectedIntersectingNode = list1.head.get.next.get
+    val list2 = SinglyLinkedList.fromList(List(2))
+    list2.head.get.next = Some(expectedIntersectingNode)
+    list2.prepend(2)
+    list1.intersectingNode(list2).get should be theSameInstanceAs expectedIntersectingNode
+    list2.intersectingNode(list1).get should be theSameInstanceAs expectedIntersectingNode
+  }
+
 }

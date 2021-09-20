@@ -12,13 +12,15 @@ package object linkedlists {
       s"[$desc node ${if(nodeOpt.isDefined) "present" else "missing"}]"
   }
 
-  case class SinglyLinkedNode[T]
-  (
-    var value: T,
-    var next: Option[SinglyLinkedNode[T]] = None
-  ) extends ListNode[T, SinglyLinkedNode[T]] {
-    override def toString: String = {
-      s"SinglyLinkedNode($value, ${optStr(next, "next")})"
+  // This needs to be a class NOT a case class so we can do a reference equality check for the intersect method
+  class SinglyLinkedNode[T](var value: T, var next: Option[SinglyLinkedNode[T]])
+    extends ListNode[T, SinglyLinkedNode[T]] {
+    override def toString: String = s"SinglyLinkedNode($value, ${optStr(next, "next")})"
+  }
+
+  object SinglyLinkedNode {
+    def apply[T](value: T, next: Option[SinglyLinkedNode[T]] = None): SinglyLinkedNode[T] = {
+      new SinglyLinkedNode[T](value, next)
     }
   }
 
