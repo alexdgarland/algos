@@ -258,4 +258,26 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
 
   def forEachValue(f: T => Unit): Unit = forEachNode(node => f(node.value))
 
+  def foldLeftNodes[A](starterAcc: A)(f: (A, N) => A): A = {
+    @tailrec
+    def inner(nodeOption: Option[N], acc: A): A = nodeOption match {
+      case None => acc
+      case Some(node) => inner(node.next, f(acc, node))
+    }
+    inner(head, starterAcc)
+  }
+
+  def foldLeft[A](starterAcc: A)(f: (A, T) => A): A = foldLeftNodes(starterAcc)((acc, node) => f(acc, node.value))
+
+  def findNode(predicate: N => Boolean): Option[N] = {
+    @tailrec
+    def inner(nodeOption: Option[N]): Option[N] = nodeOption match {
+      case None => None
+      case Some(node) => if(predicate(node)) Some(node) else inner(node.next)
+    }
+    inner(head)
+  }
+
+  def find(predicate: T => Boolean): Option[T] = findNode(node => predicate(node.value)).map(_.value)
+
 }

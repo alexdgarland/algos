@@ -269,4 +269,26 @@ class SinglyLinkedListSpec extends AnyFlatSpec with should.Matchers {
     list2.intersectingNode(list1).get should be theSameInstanceAs expectedIntersectingNode
   }
 
+  "foldLeft" should "accumulate as expected" in {
+    SinglyLinkedList.fromList(List(1, 2, 3, 4))
+      .foldLeft("0")((stringAccumulator, intValue) => s"$stringAccumulator$intValue") should be("01234")
+  }
+
+  "foldLeftNodes" should "accumulate as expected" in {
+    SinglyLinkedList.fromList(List(1, 2, 3, 4))
+      .foldLeftNodes("0")((stringAccumulator, node) => s"$stringAccumulator${node.value}") should be("01234")
+  }
+
+  "find" should "get Some of first matching element where present" in {
+    SinglyLinkedList.fromList(List(1, 2, 3, 4)).find(_ > 2) should be(Some(3))
+  }
+
+  it should "return None where no matching element present" in {
+    SinglyLinkedList.fromList(List(1, 2, 3, 4)).find(_ > 5) should be(None)
+  }
+
+  it should "return None for an empty linked list" in {
+    SinglyLinkedList[Int]().find(_ > 2) should be(None)
+  }
+
 }

@@ -300,4 +300,26 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
     DoublyLinkedList.fromList(List("a", "b", "c", "b", "d", "b", "a")).isPalindrome shouldBe false
   }
 
+  "foldLeft" should "accumulate as expected" in {
+    DoublyLinkedList.fromList(List(1, 2, 3, 4))
+      .foldLeft("0")((stringAccumulator, intValue) => s"$stringAccumulator$intValue") should be("01234")
+  }
+
+  "foldLeftNodes" should "accumulate as expected" in {
+    DoublyLinkedList.fromList(List(1, 2, 3, 4))
+      .foldLeftNodes("0")((stringAccumulator, node) => s"$stringAccumulator${node.value}") should be("01234")
+  }
+
+  "find" should "get Some of first matching element where present" in {
+    SinglyLinkedList.fromList(List(1, 2, 3, 4)).find(_ > 2) should be(Some(3))
+  }
+
+  it should "return None where no matching element present" in {
+    SinglyLinkedList.fromList(List(1, 2, 3, 4)).find(_ > 5) should be(None)
+  }
+
+  it should "return None for an empty linked list" in {
+    SinglyLinkedList[Int]().find(_ > 2) should be(None)
+  }
+
 }

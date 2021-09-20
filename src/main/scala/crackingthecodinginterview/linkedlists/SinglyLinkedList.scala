@@ -1,7 +1,7 @@
 package crackingthecodinginterview.linkedlists
 
 import scala.annotation.tailrec
-import scala.collection.mutable
+import scala.collection.immutable
 
 case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(implicit ordering: Ordering[T])
   extends LinkedList[T, SinglyLinkedNode[T], SinglyLinkedList[_]] {
@@ -143,11 +143,9 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(imp
    */
   def intersectingNode(other: SinglyLinkedList[T]): Option[SinglyLinkedNode[T]] = {
     // Convert one list to a map in O(n) for that list
-    val refMap = mutable.HashMap[SinglyLinkedNode[T], Boolean]()
-    this.forEachNode { node => refMap(node) = true }
+    val refMap = foldLeftNodes(immutable.HashMap[SinglyLinkedNode[T], Boolean]())((map, value) => map + (value -> true))
     // Walk through other list, also in O(n) for that list, checking map each iteration in constant time
-    other.forEachNode { node => if(refMap.contains(node)) return Some(node) }
-    None
+    other.findNode(refMap.contains)
   }
 
 }
