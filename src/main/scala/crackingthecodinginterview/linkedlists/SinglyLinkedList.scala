@@ -175,19 +175,14 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(imp
 object SinglyLinkedList {
 
   /** *
-   * Converter method mainly to make testing easier.
+   * Create a singly-linked list in O(n).
    *
-   * Runs in O(n) where n = length of list passed.
-   *
-   * NOT implemented using repeated calls to append() method as this itself runs in O(m)
-   * (m being length of  linked-list built so far, averaging to n/ 2)
-   * which would give a time complexity of O(n squared).
-   *
-   * @param list Scala list to convert to a linked list
+   * @param values Values for the list
+   * @tparam T Type of the values
    * @return
    */
-  def fromList[T](list: List[T])(implicit ordering: Ordering[T]): SinglyLinkedList[T] = {
-    val nodes = list.map(SinglyLinkedNode(_))
+  def apply[T](values: T*)(implicit ordering: Ordering[T]): SinglyLinkedList[T] = {
+    val nodes = values.map(SinglyLinkedNode(_))
     (1 until nodes.length).foreach { i => nodes(i - 1).next = Some(nodes(i)) }
     SinglyLinkedList(nodes.headOption)
   }

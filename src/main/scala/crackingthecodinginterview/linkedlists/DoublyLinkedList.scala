@@ -141,14 +141,14 @@ case class DoublyLinkedList[T]
 object DoublyLinkedList {
 
   /** *
-   * Create a doubly-linked list from a Scala list in O(n).
+   * Create a doubly-linked list in O(n).
    *
-   * @param list Scala list to take values from.
-   * @tparam T Type of the values.
+   * @param values Values for the list
+   * @tparam T Type of the values
    * @return
    */
-  def fromList[T](list: List[T])(implicit ordering: Ordering[T]): DoublyLinkedList[T] = {
-    val nodes = list.map(DoublyLinkedNode(_))
+  def apply[T](values: T*)(implicit ordering: Ordering[T]): DoublyLinkedList[T] = {
+    val nodes = values.map(DoublyLinkedNode(_))
     val linkedList = DoublyLinkedList(nodes.headOption, nodes.headOption)
     (1 until nodes.length).foreach { i =>
       nodes(i - 1).next = Some(nodes(i))
