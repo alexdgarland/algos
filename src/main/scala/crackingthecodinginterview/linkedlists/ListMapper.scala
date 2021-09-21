@@ -18,7 +18,7 @@ private trait ListMapper[
         mappedList.head = Some(mappedHeadNode)
         var currentSourceNode = headNode.next
         var latestAttachedMapNode = mappedHeadNode
-        while(currentSourceNode.isDefined) {
+        while (currentSourceNode.isDefined) {
           val nextMappedNode = newNode(f(currentSourceNode.get.value), Some(latestAttachedMapNode))
           latestAttachedMapNode.next = Some(nextMappedNode)
           latestAttachedMapNode = nextMappedNode

@@ -7,9 +7,11 @@ object IsUnique {
   def isUnique(string: String): Boolean = {
     val observedChars = MutableMap[Char, Unit]()
     // O(n) (best case would be better if for example first two characters are the same)
-    string.foreach{ char =>
+    string.foreach { char =>
       // Operations against hashmap are constant-time
-      if (observedChars.contains(char)) { return false }
+      if (observedChars.contains(char)) {
+        return false
+      }
       observedChars += (char -> ())
     }
     true

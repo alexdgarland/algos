@@ -9,7 +9,7 @@ class DoublyLinkedListSpec extends AnyFlatSpec with should.Matchers {
    * Compare the produced LinkedList to expected values both forward and backwards,
    * to make sure both sets of pointers (prev and next for each node, plus head and tail) are in place as expected.
    *
-   * @param linkedList Actual list.
+   * @param linkedList        Actual list.
    * @param expectedScalaList Expected values.
    * @tparam T Type of values in lists.
    */

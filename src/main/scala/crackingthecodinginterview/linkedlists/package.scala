@@ -8,8 +8,9 @@ package object linkedlists {
   sealed trait ListNode[T, Self <: ListNode[T, Self]] {
     var value: T
     var next: Option[Self]
+
     protected final def optStr(nodeOpt: Option[_], desc: String) =
-      s"[$desc node ${if(nodeOpt.isDefined) "present" else "missing"}]"
+      s"[$desc node ${if (nodeOpt.isDefined) "present" else "missing"}]"
   }
 
   // This needs to be a class NOT a case class so we can do a reference equality check for the intersect method

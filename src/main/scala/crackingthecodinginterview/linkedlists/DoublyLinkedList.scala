@@ -2,7 +2,7 @@ package crackingthecodinginterview.linkedlists
 
 import scala.annotation.tailrec
 
-/***
+/** *
  *
  * @param head First item in the list (may be null if list is empty).
  * @param tail Last item in the list (may be null if list is empty).
@@ -20,10 +20,12 @@ case class DoublyLinkedList[T]
     val newNode = Some(DoublyLinkedNode(value, head))
     head.foreach(_.prev = newNode)
     head = newNode
-    if (tail.isEmpty) { tail = newNode }
+    if (tail.isEmpty) {
+      tail = newNode
+    }
   }
 
-  /***
+  /** *
    * Insert to end of list in constant time.
    *
    * @param value Value to append to list.
@@ -40,6 +42,7 @@ case class DoublyLinkedList[T]
   override def map[TT](f: T => TT)(implicit ordering: Ordering[TT]): DoublyLinkedList[TT] = {
     new ListMapper[T, DoublyLinkedNode[T], DoublyLinkedList[T], TT, DoublyLinkedNode[TT], DoublyLinkedList[TT]]() {
       override def newList(): DoublyLinkedList[TT] = DoublyLinkedList()
+
       override def newNode(value: TT, previousNode: Option[DoublyLinkedNode[TT]]): DoublyLinkedNode[TT] =
         DoublyLinkedNode(value, None, previousNode)
     }.map(this, f)
@@ -73,7 +76,7 @@ case class DoublyLinkedList[T]
    * but doesn't fundamentally change the time complexity.
    *
    * @param k reverse-index to retrieve node for
-   *  @return Option of node - if index is out of range None, otherwise Some(node)
+   * @return Option of node - if index is out of range None, otherwise Some(node)
    */
   override def kthFromLast(k: Int): Option[DoublyLinkedNode[T]] = moveToIndex(tail, k, _.prev)
 
@@ -82,15 +85,15 @@ case class DoublyLinkedList[T]
     val leftSublist = DoublyLinkedList[T]()
     val rightSublist = DoublyLinkedList[T]()
     var currentNodeOption: Option[DoublyLinkedNode[T]] = head
-    while(currentNodeOption.isDefined) {
+    while (currentNodeOption.isDefined) {
       val currentValue = currentNodeOption.get.value
-      (if(currentValue < partitionValue) leftSublist else rightSublist).append(currentValue)
+      (if (currentValue < partitionValue) leftSublist else rightSublist).append(currentValue)
       currentNodeOption = currentNodeOption.get.next
     }
     leftSublist.tail.foreach(_.next = rightSublist.head)
     rightSublist.head.foreach(_.prev = leftSublist.tail)
-    head = (if(leftSublist.head.isEmpty) rightSublist else leftSublist).head
-    tail = (if(rightSublist.head.isEmpty) leftSublist else rightSublist).tail
+    head = (if (leftSublist.head.isEmpty) rightSublist else leftSublist).head
+    tail = (if (rightSublist.head.isEmpty) leftSublist else rightSublist).tail
   }
 
   /**
@@ -99,7 +102,7 @@ case class DoublyLinkedList[T]
   override def reverse(): Unit = {
     var currentNode = head
     var previousNode: Option[DoublyLinkedNode[T]] = None
-    while(currentNode.isDefined) {
+    while (currentNode.isDefined) {
       val nextNode = currentNode.get.next
       currentNode.get.prev = nextNode
       currentNode.get.next = previousNode
@@ -137,7 +140,7 @@ case class DoublyLinkedList[T]
 
 object DoublyLinkedList {
 
-  /***
+  /** *
    * Create a doubly-linked list from a Scala list in O(n).
    *
    * @param list Scala list to take values from.
@@ -148,8 +151,8 @@ object DoublyLinkedList {
     val nodes = list.map(DoublyLinkedNode(_))
     val linkedList = DoublyLinkedList(nodes.headOption, nodes.headOption)
     (1 until nodes.length).foreach { i =>
-      nodes(i-1).next = Some(nodes(i))
-      nodes(i).prev = Some(nodes(i-1))
+      nodes(i - 1).next = Some(nodes(i))
+      nodes(i).prev = Some(nodes(i - 1))
       if (i == (nodes.length - 1)) {
         linkedList.tail = Some(nodes(i))
       }
@@ -198,7 +201,9 @@ object DoublyLinkedList {
   def sumLists(list1: DoublyLinkedList[Int], list2: DoublyLinkedList[Int]): DoublyLinkedList[Int] = {
     new IntListSummation[DoublyLinkedNode[Int], DoublyLinkedList[Int], DoublyLinkedList[Int]] {
       override def newBuilder(): DoublyLinkedList[Int] = DoublyLinkedList[Int]()
+
       override def addValue(builder: DoublyLinkedList[Int], value: Int): Unit = builder.append(value)
+
       override def build(builder: DoublyLinkedList[Int]): DoublyLinkedList[Int] = builder
     }.sumLists(list1, list2)
   }

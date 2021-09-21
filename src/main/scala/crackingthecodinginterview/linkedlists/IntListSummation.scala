@@ -1,7 +1,7 @@
 package crackingthecodinginterview.linkedlists
 
 /**
- *  Class containing the logic to sum two lists of integers using an arbitrary builder class to produce the final list.
+ * Class containing the logic to sum two lists of integers using an arbitrary builder class to produce the final list.
  *
  * @tparam N Type of nodes to handle
  * @tparam L Type of lists to handle
@@ -31,15 +31,15 @@ private trait IntListSummation[N <: ListNode[Int, N], L <: LinkedList[Int, N, _]
     var list2Node = list2.head
     var carry = false
 
-    while(list1Node.isDefined || list2Node.isDefined) {
-      val total = getValue(list1Node) + getValue(list2Node) + (if(carry) 1 else 0)
+    while (list1Node.isDefined || list2Node.isDefined) {
+      val total = getValue(list1Node) + getValue(list2Node) + (if (carry) 1 else 0)
       carry = total > 9
       addValue(builder, total % 10)
       list1Node = list1Node.flatMap(_.next)
       list2Node = list2Node.flatMap(_.next)
     }
 
-    if(carry) addValue(builder, 1)
+    if (carry) addValue(builder, 1)
 
     build(builder)
   }

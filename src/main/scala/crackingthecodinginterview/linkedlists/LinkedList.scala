@@ -43,6 +43,7 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
         case Some(node) => inner(node.next, acc + 1)
       }
     }
+
     inner(head, 0)
   }
 
@@ -52,9 +53,9 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
       case None =>
         None
       case Some(node) =>
-        if(remainingIndex < 0)
+        if (remainingIndex < 0)
           None
-        else if(remainingIndex == 0)
+        else if (remainingIndex == 0)
           Some(node)
         else
           moveToIndex(advance(node), remainingIndex - 1, advance)
@@ -79,7 +80,7 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
    */
   def kthFromLast(k: Int): Option[N]
 
-  /***
+  /** *
    * Insert to the start of the list.
    *
    * This runs in constant time so should be default way to add data to linked list if ordering is not critical.
@@ -88,7 +89,7 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
    */
   def prepend(value: T): Unit
 
-  /***
+  /** *
    * Insert to end of list. Time complexity varies between implementations.
    *
    * @param value Value to append.
@@ -103,7 +104,7 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
 
   protected def insertAfter(value: T, beforeNode: N): Unit
 
-  /***
+  /** *
    * Delete all nodes from linked list where values meet the supplied predicate.
    *
    * Runs in O(n) as we must check all nodes in the list.
@@ -123,7 +124,7 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
         }
         initialAssignForDeleteWhere(currentNodeOption)
         // If we still have nodes left, repoint as needed
-        while(currentNodeOption.isDefined) {
+        while (currentNodeOption.isDefined) {
           val currentNode = currentNodeOption.get
           if (currentNode.next.exists(n => predicate(n.value))) {
             deleteNextNode(currentNode)
@@ -136,7 +137,7 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
 
   def map[TT](f: T => TT)(implicit ordering: Ordering[TT]): LL
 
-  /***
+  /** *
    * Insert a value to an arbitrary point in the list represented by a supplied index.
    *
    * Runs in O(i) where i is the value of the requested index -
@@ -149,11 +150,13 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
    * @param value The value to insert.
    * @param index The index at which to insert. If negative or too large for the list, an error will be thrown.
    */
-  def insertAt(value: T, index: Int): Unit  = {
+  def insertAt(value: T, index: Int): Unit = {
     if (index < 0) {
       throw new IndexOutOfBoundsException("Cannot insert to a negative index")
     }
-    else if (index == 0) { prepend(value) }
+    else if (index == 0) {
+      prepend(value)
+    }
     else {
       val throwIndexTooLarge = () => throw new IndexOutOfBoundsException(
         s"Cannot insert at index $index as existing list is too short"
@@ -168,7 +171,7 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
     }
   }
 
-  /***
+  /** *
    * Delete one element from the list at a given index.
    *
    * Runs in O(i) where i is the value of the requested index -
@@ -177,7 +180,7 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
    *
    * @param index The index at which to delete a node.
    */
-  def deleteAt(index: Int) : Unit = {
+  def deleteAt(index: Int): Unit = {
     val throwIndexTooLarge = () => throw new IndexOutOfBoundsException(
       s"Cannot delete element at index $index as this is beyond the end of the linked list"
     )
@@ -196,7 +199,7 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
     }
   }
 
-  /***
+  /** *
    * Remove all duplicate values from the list in O(n), keeping track of what values we've already seen using a map.
    *
    * The map adds worst-case space complexity of O(n), it will be smaller in as far as there are duplicate values.
@@ -209,7 +212,7 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
         val seenValues = MutableMap[T, Boolean]()
         var previousNodeOption: Option[N] = Some(headNode)
         // Loop through each element in the list (so linear-time)
-        while(previousNodeOption.flatMap(_.next).isDefined) {
+        while (previousNodeOption.flatMap(_.next).isDefined) {
           val previousNode = previousNodeOption.get
           val nextNode = previousNode.next.get
           seenValues.put(previousNode.value, true)
@@ -248,7 +251,7 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
 
   def forEachNode(f: N => Unit): Unit = {
     var currentNode = head
-    while(currentNode.isDefined) {
+    while (currentNode.isDefined) {
       currentNode.foreach { node =>
         f(node)
         currentNode = node.next
@@ -264,6 +267,7 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
       case None => acc
       case Some(node) => inner(node.next, f(acc, node))
     }
+
     inner(head, starterAcc)
   }
 
@@ -273,8 +277,9 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
     @tailrec
     def inner(nodeOption: Option[N]): Option[N] = nodeOption match {
       case None => None
-      case Some(node) => if(predicate(node)) Some(node) else inner(node.next)
+      case Some(node) => if (predicate(node)) Some(node) else inner(node.next)
     }
+
     inner(head)
   }
 

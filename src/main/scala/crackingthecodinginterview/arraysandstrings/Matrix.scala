@@ -8,16 +8,19 @@ object Matrix {
 
   class ExtendedMatrix(matrix: Array[Array[Int]]) {
     def get(indices: Indices): Int = matrix(indices.rowIndex)(indices.columnIndex)
+
     def set(indices: Indices, value: Int): Unit = matrix(indices.rowIndex)(indices.columnIndex) = value
   }
 
   implicit def extendedMatrix(matrix: Array[Array[Int]]): ExtendedMatrix = new ExtendedMatrix(matrix)
 
   sealed trait RotationDirection
+
   case object Clockwise extends RotationDirection
+
   case object AntiClockwise extends RotationDirection
 
-  /***
+  /** *
    * Rotate a square (n x n) matrix of 32-bit ints
    * (which are large enough to represent 4-byte pixels,
    * and certainly should be interchangeable in terms of algorithm time complexity).
@@ -27,7 +30,7 @@ object Matrix {
    * Best conceivable runtime is O(n squared) as there are that many elements in the matrix
    * and each needs to be touched at least once - should simply try not to exceed that.
    *
-   * @param input - the matrix to be rotated
+   * @param input     - the matrix to be rotated
    * @param direction - the direction in which to rotate the matrix (defaults to Clockwise)
    * @return
    */
@@ -47,10 +50,10 @@ object Matrix {
     outer
   }
 
-  /***
+  /** *
    * Rotate a matrix in place, hence saving space. Runs in O(n squared).
    *
-   * @param matrix
+   * @param matrix Matrix to be rotated
    */
   def rotateMatrixInPlace(matrix: Array[Array[Int]], direction: RotationDirection = Clockwise): Unit = {
     // Outer loop is O(n) (constant multiple of 0.5, ignoring the absolute middle point in n is odd)
@@ -77,10 +80,10 @@ object Matrix {
     }
   }
 
-  /***
+  /** *
    * If an element in an MxN matrix is 0, its entire row and column are set to 0.
    *
-   * @param matrix
+   * @param matrix Matrix to be zeroed
    */
   def zeroMatrix(matrix: Array[Array[Int]]): Unit = {
     val rowSize = matrix(0).length
@@ -110,7 +113,7 @@ object Matrix {
           }
         }
       }
-      if(rowHasZeroes) {
+      if (rowHasZeroes) {
         // Loop m times (within same outer loop - so overall O(n * m))
         row.indices.foreach { columnIndex => row(columnIndex) = 0 }
       }
@@ -120,7 +123,9 @@ object Matrix {
       // We don't need to zero out individual columns if we've already zero'd the entire row!
       if (row.head != 0) {
         row.indices.foreach { columnIndex =>
-          if(columnZeroes(columnIndex)) { row(columnIndex) = 0 }
+          if (columnZeroes(columnIndex)) {
+            row(columnIndex) = 0
+          }
         }
       }
     }

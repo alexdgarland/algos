@@ -7,7 +7,6 @@ import org.scalatest.matchers.should
 class EditDistanceSpec extends AnyFlatSpec with should.Matchers {
 
 
-
   "isTransformableWithinSingleEdit function" should "return true if strings are already the same" in {
     isTransformableWithinSingleEdit("pale", "pale") should be(true)
   }
