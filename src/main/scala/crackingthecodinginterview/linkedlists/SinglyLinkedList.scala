@@ -19,7 +19,9 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(imp
       case None => head = newNode
       case Some(existingNode) =>
         var currentNode = existingNode
-        while (currentNode.next.isDefined) { currentNode = currentNode.next.get }
+        while (currentNode.next.isDefined) {
+          currentNode = currentNode.next.get
+        }
         currentNode.next = newNode
     }
   }
@@ -29,6 +31,7 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(imp
   def map[TT](f: T => TT)(implicit ordering: Ordering[TT]): SinglyLinkedList[TT] = {
     new ListMapper[T, SinglyLinkedNode[T], SinglyLinkedList[T], TT, SinglyLinkedNode[TT], SinglyLinkedList[TT]]() {
       override def newList(): SinglyLinkedList[TT] = SinglyLinkedList()
+
       override def newNode(value: TT, previousNode: Option[SinglyLinkedNode[TT]]): SinglyLinkedNode[TT] =
         SinglyLinkedNode(value)
     }.map(this, f)
@@ -46,7 +49,7 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(imp
     beforeNode.next = Some(SinglyLinkedNode(value, beforeNode.next))
   }
 
-  override private[linkedlists] def setToTail(node: Option[SinglyLinkedNode[T]]): Unit = { }
+  override private[linkedlists] def setToTail(node: Option[SinglyLinkedNode[T]]): Unit = {}
 
   /**
    * Implement for singly-linked list using existing methods for length and retrieve-by-index (apply), both of which run in O(n).
@@ -54,17 +57,17 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(imp
    * As far as I can see, this is equivalent in complexity to the "runner pointer" solution from CTCI but makes more sense.
    *
    * @param k reverse-index to retrieve node for
-   *  @return Option of node - if index is out of range None, otherwise Some(node)
+   * @return Option of node - if index is out of range None, otherwise Some(node)
    */
-  override def kthFromLast(k: Int): Option[SinglyLinkedNode[T]] = this(this.length - (k + 1))
+  override def kthFromLast(k: Int): Option[SinglyLinkedNode[T]] = this (this.length - (k + 1))
 
   override def partition(partitionValue: T): Unit = {
     import ordering.mkOrderingOps
     val leftBuilder = SinglyLinkedList.ListBuilder()
     val rightBuilder = SinglyLinkedList.ListBuilder()
     var currentNodeOption: Option[SinglyLinkedNode[T]] = head
-    while(currentNodeOption.isDefined) {
-      val builder = if(currentNodeOption.exists(_.value < partitionValue)) leftBuilder else rightBuilder
+    while (currentNodeOption.isDefined) {
+      val builder = if (currentNodeOption.exists(_.value < partitionValue)) leftBuilder else rightBuilder
       builder.addNodeOption(currentNodeOption)
       currentNodeOption = currentNodeOption.flatMap(_.next)
     }
@@ -77,7 +80,7 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(imp
   override def reverse(): Unit = {
     var currentNode = head
     var previousNode: Option[SinglyLinkedNode[T]] = None
-    while(currentNode.isDefined) {
+    while (currentNode.isDefined) {
       val nextNode = currentNode.get.next
       currentNode.get.next = previousNode
       previousNode = currentNode
@@ -110,12 +113,12 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(imp
     @tailrec
     def execForLength(state: IterState, f: AccumulatorFunc, remainingLength: Int = length / 2): IterState = {
       if (remainingLength == 0 || state.acc.nonMatchFound) state
-      else execForLength(state.next(f), f, remainingLength -1)
+      else execForLength(state.next(f), f, remainingLength - 1)
     }
 
     val stackingResult = execForLength(IterState(head), (value, stack) => Accumulator(value :: stack))
 
-    val firstCheckNode =  stackingResult.node.flatMap(if(length % 2 == 1) _.next else Some(_))
+    val firstCheckNode = stackingResult.node.flatMap(if (length % 2 == 1) _.next else Some(_))
 
     val foundAnyNonMatch = execForLength(
       IterState(firstCheckNode, stackingResult.acc),
@@ -148,6 +151,25 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(imp
     other.findNode(refMap.contains)
   }
 
+  def getLoopStart: Option[SinglyLinkedNode[T]] = {
+    @tailrec
+    def inner
+    (
+      nodeOption: Option[SinglyLinkedNode[T]],
+      seenMap: immutable.HashMap[SinglyLinkedNode[T], Boolean]
+    ): Option[SinglyLinkedNode[T]] =
+      nodeOption match {
+        case None => None
+        case Some(node) =>
+          if (seenMap.contains(node))
+            Some(node)
+          else
+            inner(node.next, seenMap + (node -> true))
+      }
+
+    inner(head, immutable.HashMap[SinglyLinkedNode[T], Boolean]())
+  }
+
 }
 
 object SinglyLinkedList {
@@ -166,7 +188,7 @@ object SinglyLinkedList {
    */
   def fromList[T](list: List[T])(implicit ordering: Ordering[T]): SinglyLinkedList[T] = {
     val nodes = list.map(SinglyLinkedNode(_))
-    (1 until nodes.length).foreach { i => nodes(i-1).next = Some(nodes(i)) }
+    (1 until nodes.length).foreach { i => nodes(i - 1).next = Some(nodes(i)) }
     SinglyLinkedList(nodes.headOption)
   }
 
@@ -225,7 +247,9 @@ object SinglyLinkedList {
   def sumLists(list1: SinglyLinkedList[Int], list2: SinglyLinkedList[Int]): SinglyLinkedList[Int] = {
     new IntListSummation[SinglyLinkedNode[Int], SinglyLinkedList[Int], SinglyLinkedList.ListBuilder[Int]] {
       override def newBuilder(): ListBuilder[Int] = SinglyLinkedList.ListBuilder[Int]()
+
       override def addValue(builder: ListBuilder[Int], value: Int): Unit = builder.addValue(value)
+
       override def build(builder: ListBuilder[Int]): SinglyLinkedList[Int] = builder.build()
     }.sumLists(list1, list2)
   }

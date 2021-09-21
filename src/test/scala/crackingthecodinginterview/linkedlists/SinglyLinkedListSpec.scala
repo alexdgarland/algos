@@ -291,4 +291,22 @@ class SinglyLinkedListSpec extends AnyFlatSpec with should.Matchers {
     SinglyLinkedList[Int]().find(_ > 2) should be(None)
   }
 
+  "getLoopStart" should "return Some of node at start of loop" in {
+    val list = SinglyLinkedList.fromList(List(1, 2, 3, 4))
+    /*
+    Transform list to:
+
+    1 -> 2 -> 3 -> 4
+         ^         |
+         ---cycle---
+
+     */
+    list.findNode(_.value == 4).foreach(_.next = list.findNode(_.value == 2))
+    list.getLoopStart.get.value should be(2)
+  }
+
+  it should "return None where there is no loop" in {
+    SinglyLinkedList.fromList(List(1, 2, 3, 4)).getLoopStart should be(None)
+  }
+
 }
