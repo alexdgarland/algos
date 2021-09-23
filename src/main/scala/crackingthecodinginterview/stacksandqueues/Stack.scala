@@ -31,7 +31,7 @@ class LinkedListStack[T](implicit ordering: Ordering[T]) extends SinglyLinkedLis
   override def push(value: T): Unit = prepend(value)
 
   override def pop(): Option[T] = {
-    val poppedValue = head.map(_.value)
+    val poppedValue = peek()
     head.foreach(currentHead => head = currentHead.next)
     poppedValue
   }

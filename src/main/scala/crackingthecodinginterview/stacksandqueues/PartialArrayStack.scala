@@ -12,19 +12,21 @@ case class PartialArrayStack[T]
   private var currentTopIndex: Option[Int] = None
 
   override def push(value: T): Unit = {
-    // TODO - Should fail (how do we handle this - Exception or Either?) if overflows past maxArrayIndex
     val index = currentTopIndex.map(_ + 1).getOrElse(minArrayIndex)
+    if (index > maxArrayIndex) throw new IllegalStateException("Cannot add new element to stack - max size exceeded")
     array(index) = value
     currentTopIndex = Some(index)
   }
 
-  // None if empty (how do we represent this? including as starting state...), otherwise Some(value at index)
-  // Decrement currentTopIndex, setting to None once we empty the stack
-  override def pop(): Option[T] = ???
+  override def pop(): Option[T] = {
+    val poppedValue = peek()
+    currentTopIndex = currentTopIndex.flatMap(i => if (i == 0) None else Some(i-1))
+    poppedValue
+  }
 
-  override def peek(): Option[T] = ???
+  override def peek(): Option[T] = currentTopIndex.map { i => array(minArrayIndex + i) }
 
-  override def isEmpty: Boolean = ???
+  override def isEmpty: Boolean = currentTopIndex.isEmpty
 
   override def toList: List[T] = currentTopIndex
     .map(i => array.slice(minArrayIndex, i + 1).reverse.toList)
