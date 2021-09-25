@@ -11,7 +11,7 @@ class StackSpec extends AnyFlatSpec with should.Matchers {
     stack.toList should be(List(4, 3, 2, 1))
   }
 
-  "push" should "remove item from populated stack and return it wrapped in Some as expected" in {
+  "pop" should "remove item from populated stack and return it wrapped in Some as expected" in {
     val stack = Stack(3, 2, 1)
     stack.pop() should be(Some(3))
     stack.toList should be(List(2, 1))
