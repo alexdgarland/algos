@@ -24,7 +24,7 @@ case class PartialArrayStack[T]
     poppedValue
   }
 
-  override def peek(): Option[T] = currentTopIndex.map { i => array(minArrayIndex + i) }
+  override def peek(): Option[T] = currentTopIndex.map(array(_))
 
   override def isEmpty: Boolean = currentTopIndex.isEmpty
 
