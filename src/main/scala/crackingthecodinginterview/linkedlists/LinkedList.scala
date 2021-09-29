@@ -135,7 +135,7 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
     }
   }
 
-  def map[TT](f: T => TT)(implicit ordering: Ordering[TT]): LL
+  def map[TT](f: T => TT): LL
 
   /** *
    * Insert a value to an arbitrary point in the list represented by a supplied index.
@@ -235,7 +235,7 @@ trait LinkedList[T, N <: ListNode[T, N], +LL] {
    *
    * @param partitionValue Value around which to partition the list
    */
-  def partition(partitionValue: T): Unit
+  def partition(partitionValue: T)(implicit ordering: Ordering[T]): Unit
 
   /**
    * Perform an in-place reversal of the nodes in the list.

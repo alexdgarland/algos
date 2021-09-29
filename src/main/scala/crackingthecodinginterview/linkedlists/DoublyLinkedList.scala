@@ -12,7 +12,7 @@ case class DoublyLinkedList[T]
 (
   var head: Option[DoublyLinkedNode[T]] = None,
   var tail: Option[DoublyLinkedNode[T]] = None
-)(implicit ordering: Ordering[T]) extends LinkedList[T, DoublyLinkedNode[T], DoublyLinkedList[_]] {
+) extends LinkedList[T, DoublyLinkedNode[T], DoublyLinkedList[_]] {
 
   def toListReversed: List[T] = toList(tail, node => node.prev)
 
@@ -39,7 +39,7 @@ case class DoublyLinkedList[T]
     tail = newNode
   }
 
-  override def map[TT](f: T => TT)(implicit ordering: Ordering[TT]): DoublyLinkedList[TT] = {
+  override def map[TT](f: T => TT): DoublyLinkedList[TT] = {
     new ListMapper[T, DoublyLinkedNode[T], DoublyLinkedList[T], TT, DoublyLinkedNode[TT], DoublyLinkedList[TT]]() {
       override def newList(): DoublyLinkedList[TT] = DoublyLinkedList()
 
@@ -80,7 +80,7 @@ case class DoublyLinkedList[T]
    */
   override def kthFromLast(k: Int): Option[DoublyLinkedNode[T]] = moveToIndex(tail, k, _.prev)
 
-  override def partition(partitionValue: T): Unit = {
+  override def partition(partitionValue: T)(implicit ordering: Ordering[T]): Unit = {
     import ordering.mkOrderingOps
     val leftSublist = DoublyLinkedList[T]()
     val rightSublist = DoublyLinkedList[T]()
@@ -147,7 +147,7 @@ object DoublyLinkedList {
    * @tparam T Type of the values
    * @return
    */
-  def apply[T](values: T*)(implicit ordering: Ordering[T]): DoublyLinkedList[T] = {
+  def apply[T](values: T*): DoublyLinkedList[T] = {
     val nodes = values.map(DoublyLinkedNode(_))
     val linkedList = DoublyLinkedList(nodes.headOption, nodes.headOption)
     (1 until nodes.length).foreach { i =>

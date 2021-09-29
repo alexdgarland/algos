@@ -3,7 +3,7 @@ package crackingthecodinginterview.linkedlists
 import scala.annotation.tailrec
 import scala.collection.immutable
 
-case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(implicit ordering: Ordering[T])
+case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)
   extends LinkedList[T, SinglyLinkedNode[T], SinglyLinkedList[_]] {
 
   /** *
@@ -13,7 +13,7 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(imp
    *
    * @param value The value to insert.
    */
-  def append(value: T): Unit = {
+  override def append(value: T): Unit = {
     val newNode = Some(SinglyLinkedNode(value))
     head match {
       case None => head = newNode
@@ -26,9 +26,9 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(imp
     }
   }
 
-  def prepend(value: T): Unit = head = Some(SinglyLinkedNode(value, head))
+  override def prepend(value: T): Unit = head = Some(SinglyLinkedNode(value, head))
 
-  def map[TT](f: T => TT)(implicit ordering: Ordering[TT]): SinglyLinkedList[TT] = {
+  override def map[TT](f: T => TT): SinglyLinkedList[TT] = {
     new ListMapper[T, SinglyLinkedNode[T], SinglyLinkedList[T], TT, SinglyLinkedNode[TT], SinglyLinkedList[TT]]() {
       override def newList(): SinglyLinkedList[TT] = SinglyLinkedList()
 
@@ -61,10 +61,10 @@ case class SinglyLinkedList[T](var head: Option[SinglyLinkedNode[T]] = None)(imp
    */
   override def kthFromLast(k: Int): Option[SinglyLinkedNode[T]] = this (this.length - (k + 1))
 
-  override def partition(partitionValue: T): Unit = {
+  override def partition(partitionValue: T)(implicit ordering: Ordering[T]): Unit = {
     import ordering.mkOrderingOps
-    val leftBuilder = SinglyLinkedList.ListBuilder()
-    val rightBuilder = SinglyLinkedList.ListBuilder()
+    val leftBuilder = SinglyLinkedList.ListBuilder[T]()
+    val rightBuilder = SinglyLinkedList.ListBuilder[T]()
     var currentNodeOption: Option[SinglyLinkedNode[T]] = head
     while (currentNodeOption.isDefined) {
       val builder = if (currentNodeOption.exists(_.value < partitionValue)) leftBuilder else rightBuilder
@@ -181,7 +181,7 @@ object SinglyLinkedList {
    * @tparam T Type of the values
    * @return
    */
-  def apply[T](values: T*)(implicit ordering: Ordering[T]): SinglyLinkedList[T] = {
+  def apply[T](values: T*): SinglyLinkedList[T] = {
     val nodes = values.map(SinglyLinkedNode(_))
     (1 until nodes.length).foreach { i => nodes(i - 1).next = Some(nodes(i)) }
     SinglyLinkedList(nodes.headOption)
@@ -208,7 +208,7 @@ object SinglyLinkedList {
   (
     var head: Option[SinglyLinkedNode[T]] = None,
     var latest: Option[SinglyLinkedNode[T]] = None
-  )(implicit ordering: Ordering[T]) {
+  ) {
 
     def addNodeOption(nodeOption: Option[SinglyLinkedNode[T]]): Unit = {
       if (head.isEmpty) head = nodeOption

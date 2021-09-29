@@ -27,7 +27,7 @@ object Stack {
   def apply[T](values: T*)(implicit ordering: Ordering[T]): Stack[T] = Stack(SinglyLinkedList(values: _*))
 }
 
-class LinkedListStack[T](implicit ordering: Ordering[T]) extends SinglyLinkedList[T] with Stack[T] {
+class LinkedListStack[T] extends SinglyLinkedList[T] with Stack[T] {
   override def push(value: T): Unit = prepend(value)
 
   override def pop(): Option[T] = {
