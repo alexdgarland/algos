@@ -21,7 +21,7 @@ class FiniteStack[T](val capacity: Int)(implicit ordering: Ordering[T]) extends 
 
 class SetOfStacks[T](val innerStackCapacity: Int)(implicit ordering: Ordering[T]) extends Stack[T] {
 
-  private val innerStacks = new LinkedListStack[FiniteStack[T]]()
+  private val innerStacks = Stack[FiniteStack[T]]()
 
   private def currentStack: Option[FiniteStack[T]] = innerStacks.peek()
 

@@ -16,15 +16,15 @@ trait Stack[T] {
 }
 
 object Stack {
-  def apply[T](implicit ordering: Ordering[T]): Stack[T] = new LinkedListStack[T]()
+  def apply[T]: Stack[T] = new LinkedListStack[T]()
 
-  private def apply[T](list: SinglyLinkedList[T])(implicit ordering: Ordering[T]): Stack[T] = {
+  private def apply[T](list: SinglyLinkedList[T]): Stack[T] = {
     val stack = new LinkedListStack[T]()
     stack.head = list.head
     stack
   }
 
-  def apply[T](values: T*)(implicit ordering: Ordering[T]): Stack[T] = Stack(SinglyLinkedList(values: _*))
+  def apply[T](values: T*): Stack[T] = Stack(SinglyLinkedList(values: _*))
 }
 
 class LinkedListStack[T] extends SinglyLinkedList[T] with Stack[T] {
