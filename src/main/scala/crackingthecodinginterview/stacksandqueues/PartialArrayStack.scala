@@ -31,6 +31,9 @@ case class PartialArrayStack[T]
   override def toList: List[T] = currentTopIndex
     .map(i => array.slice(minArrayIndex, i + 1).reverse.toList)
     .getOrElse(List())
+
+  override def size: Int = currentTopIndex.map(i => (i - minArrayIndex) + 1).getOrElse(0)
+
 }
 
 case class TripleStack[T]

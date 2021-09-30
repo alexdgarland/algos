@@ -48,4 +48,6 @@ class SetOfStacks[T](val innerStackCapacity: Int)(implicit ordering: Ordering[T]
 
   override def toList: List[T] = innerStacks.toList.flatMap(_.toList)
 
+  override def size: Int = innerStacks.toList.map(_.size).sum
+
 }

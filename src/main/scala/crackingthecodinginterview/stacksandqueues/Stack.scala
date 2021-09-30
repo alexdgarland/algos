@@ -13,6 +13,9 @@ trait Stack[T] {
   def isEmpty: Boolean
 
   def toList: List[T]
+
+  def size: Int
+
 }
 
 object Stack {
@@ -41,4 +44,7 @@ class LinkedListStack[T] extends SinglyLinkedList[T] with Stack[T] {
   override def isEmpty: Boolean = head.isEmpty
 
   override def toList: List[T] = toList()
+
+  override def size: Int = foldLeft(0)((acc, _) => acc + 1)
+
 }

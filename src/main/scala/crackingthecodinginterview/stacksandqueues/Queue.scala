@@ -18,8 +18,7 @@ case class DoubleStackQueue[T]
   private val oldestFirstStack: Stack[T] = Stack[T]()
 ) extends Queue[T] {
 
-  // TODO - Stack (trait + impls) doesn't currently have a direct `size` method - maybe need to impl this
-  override def size: Int = newestFirstStack.toList.size + oldestFirstStack.toList.size
+  override def size: Int = newestFirstStack.size + oldestFirstStack.size
 
   override def add(value: T): Unit = newestFirstStack.push(value)
 

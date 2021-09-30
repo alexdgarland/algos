@@ -52,6 +52,26 @@ trait SharedStackBehaviourTests {
       populatedStack.isEmpty should be(false)
     }
 
+    it should "return size 0 for new empty stack" in {
+      newStack.size should be(0)
+    }
+
+    it should "return correct size for populated stack" in {
+      populatedStack.size should be(3)
+    }
+
+    it should "return correct size for stack with some elements popped" in {
+      val stack = populatedStack
+      stack.pop()
+      stack.size should be(2)
+    }
+
+    it should "return correct size for re-emptied stack" in {
+      val stack = populatedStack
+      (1 to 3).foreach(_ => stack.pop())
+      stack.size should be(0)
+    }
+
   }
 
 }
