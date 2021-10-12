@@ -20,7 +20,7 @@ case class PartialArrayStack[T]
 
   override def pop(): Option[T] = {
     val poppedValue = peek()
-    currentTopIndex = currentTopIndex.flatMap(i => if (i == 0) None else Some(i-1))
+    currentTopIndex = currentTopIndex.flatMap(i => if (i == 0) None else Some(i - 1))
     poppedValue
   }
 
@@ -48,9 +48,9 @@ object TripleStack {
   def apply[T: ClassTag](maxStackSize: Int = 10): TripleStack[T] = {
     val backingArray = new Array[T](maxStackSize * 3)
     TripleStack(
-      PartialArrayStack(backingArray, 0, maxStackSize -1),
-      PartialArrayStack(backingArray, maxStackSize, (maxStackSize * 2) -1),
-      PartialArrayStack(backingArray, maxStackSize * 2, (maxStackSize * 3) -1)
+      PartialArrayStack(backingArray, 0, maxStackSize - 1),
+      PartialArrayStack(backingArray, maxStackSize, (maxStackSize * 2) - 1),
+      PartialArrayStack(backingArray, maxStackSize * 2, (maxStackSize * 3) - 1)
     )
   }
 

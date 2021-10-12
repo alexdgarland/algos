@@ -35,21 +35,21 @@ object Stack {
    * This is definitely not the most efficient way to do a sort - is effectively a bubble-sort running in O(n-squared) -
    * however not sure we can do a lot better while meeting the constraint to not use any other data structures.
    *
-   * @param stack Stack to be sorted.
+   * @param stack    Stack to be sorted.
    * @param ordering Ordering over the types of the stack values.
    * @tparam T Type of the stack values.
    */
   def sort[T](stack: Stack[T])(implicit ordering: Ordering[T]): Unit = {
     import ordering.mkOrderingOps
     val buffer = Stack[T]()
-    while(!stack.isEmpty) {
+    while (!stack.isEmpty) {
       val current = stack.pop().get
-      while(buffer.peek().exists(_ > current)) {
+      while (buffer.peek().exists(_ > current)) {
         buffer.pop().foreach(stack.push)
       }
       buffer.push(current)
     }
-    while(!buffer.isEmpty) {
+    while (!buffer.isEmpty) {
       buffer.pop().foreach(stack.push)
     }
   }

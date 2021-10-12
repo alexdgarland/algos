@@ -8,14 +8,14 @@ class LinkedListMinStack[T]()(implicit ordering: Ordering[T]) extends LinkedList
 
   private val minValuesStack = Stack[T]()
 
-  override def push(value:  T): Unit = {
+  override def push(value: T): Unit = {
     import ordering.mkOrderingOps
     if (!min.exists(value > _)) minValuesStack.push(value)
     super.push(value)
   }
 
   override def pop(): Option[T] = {
-    if(peek() == minValuesStack.peek()) minValuesStack.pop()
+    if (peek() == minValuesStack.peek()) minValuesStack.pop()
     super.pop()
   }
 

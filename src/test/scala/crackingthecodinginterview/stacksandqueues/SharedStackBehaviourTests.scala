@@ -6,7 +6,9 @@ import org.scalatest.matchers.should
 trait SharedStackBehaviourTests {
   this: AnyFlatSpec with should.Matchers =>
 
-  protected def populateStack(stack: Stack[Int]): Unit = (1 to 3).foreach { stack.push }
+  protected def populateStack(stack: Stack[Int]): Unit = (1 to 3).foreach {
+    stack.push
+  }
 
   def defaultStack(newStack: => Stack[Int]): Unit = {
 

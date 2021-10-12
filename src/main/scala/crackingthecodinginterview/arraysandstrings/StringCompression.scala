@@ -6,7 +6,7 @@ object StringCompression {
    * Shared code to run through a string (in O(n)),
    * calling a given function with the character and run-length whenever the end of a run of the same char is reached.
    *
-   * @param s String to iterate over
+   * @param s        String to iterate over
    * @param function Function to apply over each run
    */
   private def executeOverCharacterRuns(s: String, function: (Char, Int) => Unit): Unit = {
