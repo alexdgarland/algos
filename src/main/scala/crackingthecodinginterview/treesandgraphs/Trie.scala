@@ -2,12 +2,12 @@ package crackingthecodinginterview.treesandgraphs
 
 import scala.collection.mutable
 
-/**
- * Can we do letters as 26 individual singletons (enums?) for reuse?
- */
 sealed trait WordElement
+
 case object StartOfWord extends WordElement
+
 case class Letter(char: Char) extends WordElement
+
 case object EndOfWord extends WordElement
 
 /**
@@ -26,50 +26,43 @@ case class TrieNode
 (
   value: WordElement,
   children: mutable.MutableList[TrieNode] = mutable.MutableList[TrieNode]()
-)
+) {
 
-/**
- * Code here is a bit messy and could undoubtedly do with some factoring out of shared parts
- * as well as the other changes mentioned above.
- */
+  def existingChildWithChar(char: Char): Option[TrieNode] = {
+    children.find { _.value match { case Letter(nodeCharacter) => nodeCharacter == char } }
+  }
+
+  def childForChar(char: Char): TrieNode = existingChildWithChar(char)
+    .getOrElse {
+      val newNode = TrieNode(Letter(char))
+      children += newNode
+      newNode
+    }
+
+  def endsWord: Boolean = children.contains(TrieNode(EndOfWord))
+
+  def markEnd(): Unit = if (!endsWord) children += TrieNode(EndOfWord)
+
+}
+
 class Trie {
 
   private val root: TrieNode = TrieNode(StartOfWord)
 
-  def add(word: String): Unit = {
+  private def traverseFromRoot(word: String, f: (Char, TrieNode) => TrieNode): TrieNode = {
     var currentNode = root
-    word.toLowerCase().foreach { wordCharacter =>
-      currentNode =
-        currentNode.children.find {
-          _.value match {
-            case Letter(nodeCharacter) => nodeCharacter == wordCharacter
-            case _ => false
-          }
-        }.getOrElse {
-          val newLetter = TrieNode(Letter(wordCharacter))
-          currentNode.children += newLetter
-          newLetter
-        }
-    }
-    if(!currentNode.children.contains(TrieNode(EndOfWord))) {
-      currentNode.children += TrieNode(EndOfWord)
-    }
+    word.toLowerCase().foreach { char => currentNode = f(char, currentNode) }
+    currentNode
   }
 
-  def contains(word: String): Boolean = {
-    var currentNode = root
-    word.toLowerCase().foreach { wordCharacter =>
-      currentNode.children.find {
-        _.value match {
-          case Letter(nodeCharacter) => nodeCharacter == wordCharacter
-          case _ => false
-        }
-    } match {
-        case None => return false
-        case Some(foundNode) => currentNode = foundNode
-      }
-    }
-    currentNode.children.contains(TrieNode(EndOfWord))
-  }
+  def add(word: String): Unit = traverseFromRoot(
+    word,
+    (char, currentNode) => currentNode.childForChar(char)
+  ).markEnd()
+
+  def contains(word: String): Boolean = traverseFromRoot(
+    word,
+    (char, currentNode) => currentNode.existingChildWithChar(char).getOrElse(return false)
+  ).endsWord
 
 }
