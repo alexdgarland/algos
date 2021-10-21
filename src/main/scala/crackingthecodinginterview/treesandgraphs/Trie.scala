@@ -2,14 +2,6 @@ package crackingthecodinginterview.treesandgraphs
 
 import scala.collection.mutable
 
-sealed trait WordElement
-
-case object StartOfWord extends WordElement
-
-case class Letter(char: Char) extends WordElement
-
-case object EndOfWord extends WordElement
-
 /**
  * Using a generic n-ary style of node (with a list of children) has some pros and cons.
  *
@@ -22,47 +14,44 @@ case object EndOfWord extends WordElement
  * (rather than a single optimal solution) - this seems to be true of graphs more generally versus (e.g.)
  * linked-lists where there are no doubt some trade-offs but some level of best practice seems more applicable.
  */
-case class TrieNode
-(
-  value: WordElement,
-  children: mutable.MutableList[TrieNode] = mutable.MutableList[TrieNode]()
-) {
+sealed trait TrieNode {
 
-  def existingChildWithChar(char: Char): Option[TrieNode] = {
-    children.find { _.value match { case Letter(nodeCharacter) => nodeCharacter == char } }
-  }
+  val children: mutable.MutableList[Letter] = mutable.MutableList[Letter]()
+  var endsValidWord: Boolean = false
 
-  def childForChar(char: Char): TrieNode = existingChildWithChar(char)
+  def existingChildWithChar(char: Char): Option[Letter] = children.find { _.char == char }
+
+  def childForChar(char: Char): Letter = existingChildWithChar(char)
     .getOrElse {
-      val newNode = TrieNode(Letter(char))
+      val newNode = Letter(char)
       children += newNode
       newNode
     }
 
-  def endsWord: Boolean = children.contains(TrieNode(EndOfWord))
-
-  def markEnd(): Unit = if (!endsWord) children += TrieNode(EndOfWord)
-
 }
+
+case class StartOfWord() extends TrieNode
+
+case class Letter(char: Char) extends TrieNode
 
 class Trie {
 
-  private val root: TrieNode = TrieNode(StartOfWord)
+  private val root = StartOfWord()
 
   private def traverseFromRoot(word: String, f: (Char, TrieNode) => TrieNode): TrieNode = {
-    var currentNode = root
+    var currentNode: TrieNode = root
     word.toLowerCase().foreach { char => currentNode = f(char, currentNode) }
     currentNode
   }
 
   def add(word: String): Unit = traverseFromRoot(
     word,
-    (char, currentNode) => currentNode.childForChar(char)
-  ).markEnd()
+    (char, node) => node.childForChar(char)
+  ).endsValidWord = true
 
   def contains(word: String): Boolean = traverseFromRoot(
     word,
-    (char, currentNode) => currentNode.existingChildWithChar(char).getOrElse(return false)
-  ).endsWord
+    (char, node) => node.existingChildWithChar(char).getOrElse(return false)
+  ).endsValidWord
 
 }
