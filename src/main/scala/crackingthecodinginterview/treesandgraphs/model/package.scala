@@ -1,5 +1,7 @@
 package crackingthecodinginterview.treesandgraphs
 
+import scala.collection.mutable
+
 package object model {
 
   case class BinaryTreeNode[T]
@@ -10,7 +12,11 @@ package object model {
   )
 
   // This can be used to implement any arbitrary graph, including n-ary trees
-  case class GenericNode[T](value: T, children: List[T])
+  case class GenericNode[T]
+  (
+    value: T,
+    children: mutable.MutableList[GenericNode[T]] = mutable.MutableList[GenericNode[T]]()
+  )
 
   case class Graph[T](nodes: List[GenericNode[T]])
 
