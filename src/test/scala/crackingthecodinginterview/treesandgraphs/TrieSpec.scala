@@ -18,6 +18,13 @@ trait SharedTrieBehaviourTests {
       trie
     }
 
+    it should "throw an error on trying to add a word with characters other than basic English letters" in {
+      val exception = intercept[IllegalArgumentException] {
+        newTrie.add("Hello!?!")
+      }
+      exception.getMessage should be("Cannot add characters other than ASCII letters to trie - found '!', '?', '!'.")
+    }
+
     it should "identify word that is contained" in {
       testTrie.contains("Hello") should be(true)
     }
@@ -60,6 +67,12 @@ trait SharedTrieBehaviourTests {
 
     it should "offer empty list of suggestions for a prefix which matches no words" in {
       testTrie.suggestions("Helloooo") should be(List())
+    }
+
+    it should "not alter behaviour when a duplicate word is added" in {
+      val trie = testTrie
+      trie.add("hello")
+      trie.suggestions("hell").sorted should be(List("hellenistic", "hello", "hells", "hellscape"))
     }
 
   }

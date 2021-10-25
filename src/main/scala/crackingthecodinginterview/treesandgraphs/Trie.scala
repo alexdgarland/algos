@@ -53,6 +53,13 @@ private sealed trait TrieNode {
   def buildSuggestions(prefix: String): List[String]
 
 }
+private object char {
+
+  implicit class CharProperties(val ch: Char) extends AnyVal {
+    def isASCIILetter: Boolean = (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
+  }
+
+}
 
 /**
  * Trie implementation that can operate using any implementation of TrieNode.
@@ -72,16 +79,27 @@ private case class TrieImpl(root: TrieNode) extends Trie {
     currentNode
   }
 
+  private def validateCharacters(word: String): Unit = {
+    import char.CharProperties
+    val badChars = word.filter(char => !char.isASCIILetter)
+    if(badChars.nonEmpty) throw new IllegalArgumentException(
+      s"Cannot add characters other than ASCII letters to trie - found ${badChars.mkString("'", "', '", "'")}."
+    )
+  }
+
   /**
    * Add a new word to the Trie.
    *
    * @param word Word to add.
    *             Must only contain standard ASCII letters, which will be store in a case-insensitive way.
    */
-  def add(word: String): Unit = traverseFromRoot(
-    word,
-    (char, node) => node.childForChar(char)
-  ).endsValidWord = true
+  def add(word: String): Unit = {
+    validateCharacters(word)
+    traverseFromRoot(
+      word,
+      (char, node) => node.childForChar(char)
+    ).endsValidWord = true
+  }
 
   /**
    * Check if word exists in the Trie.
