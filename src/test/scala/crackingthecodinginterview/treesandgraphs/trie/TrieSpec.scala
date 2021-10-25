@@ -1,4 +1,4 @@
-package crackingthecodinginterview.treesandgraphs
+package crackingthecodinginterview.treesandgraphs.trie
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
