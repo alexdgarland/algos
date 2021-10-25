@@ -1,5 +1,7 @@
 package crackingthecodinginterview.treesandgraphs
 
+import scala.annotation.tailrec
+
 /**
  * Top-level abstraction that exposes only the methods that would be used by a caller
  * in terms of adding/ checking/ retrieving strings.
@@ -30,11 +32,17 @@ private sealed trait TrieNode {
   def existingChildWithChar(char: Char): Option[TrieNode]
 
   /**
-   * Return existing node that matches a given character if it exists, otherwise create, insert and return a new node.
+   * Create, insert and return a new node for a given character.
+   *
    * @param char Character the node needs to match.
    * @return
    */
-  def childForChar(char: Char): TrieNode
+  def newChild(char: Char): TrieNode
+
+  def childOptionForChar(char: Char): Option[TrieNode] = existingChildWithChar(char) match {
+    case existing@Some(_) => existing
+    case None => Some(newChild(char))
+  }
 
   /**
    * Indicates whether the set of letters negotiated thus far constitutes a full valid word.
@@ -68,16 +76,24 @@ private object char {
  */
 private case class TrieImpl(root: TrieNode) extends Trie {
 
-  // TODO - should refactor, there are a couple of hacky-ish things here, the use of mutable state internally
-  //  and (more importantly) the fact that some of the functions passed have to do getOrElse(return something).
-  //  I believe it should be possible to do recursively,
-  //  return an Option and itself terminate early returning None where needed,
-  //  letting the caller handle the None case directly rather than via a messy callback.
-  private def traverseFromRoot(word: String, f: (Char, TrieNode) => TrieNode): TrieNode = {
-    var currentNode: TrieNode = root
-    word.toLowerCase().foreach { char => currentNode = f(char, currentNode) }
-    currentNode
+  type TraversalAction = TrieNode => Char => Option[TrieNode]
+
+  private def traverseFromRoot(word: String, action: TraversalAction): Option[TrieNode] = {
+
+    @tailrec
+    def inner(word: String, nodeOption: Option[TrieNode], action: TraversalAction): Option[TrieNode] = {
+      if (word.isEmpty) nodeOption
+      // This is effectively a flatMap but expanding to an explicit pattern-match allows tail recursion
+      else nodeOption match {
+        case None => None
+        case Some(node) => inner(word.tail, action(node)(word.head.toLower), action)
+      }
+    }
+
+    inner(word, Some(root), action)
   }
+
+  private def findNode(charSequence: String): Option[TrieNode] = traverseFromRoot(charSequence, _.existingChildWithChar)
 
   private def validateCharacters(word: String): Unit = {
     import char.CharProperties
@@ -95,10 +111,7 @@ private case class TrieImpl(root: TrieNode) extends Trie {
    */
   def add(word: String): Unit = {
     validateCharacters(word)
-    traverseFromRoot(
-      word,
-      (char, node) => node.childForChar(char)
-    ).endsValidWord = true
+    traverseFromRoot(word, _.childOptionForChar).foreach(_.endsValidWord = true)
   }
 
   /**
@@ -108,11 +121,7 @@ private case class TrieImpl(root: TrieNode) extends Trie {
    *             Must only contain standard ASCII letters, which will be checked for in a case-insensitive way.
    * @return
    */
-  def contains(word: String): Boolean = traverseFromRoot(
-    word,
-    (char, node) => node.existingChildWithChar(char).getOrElse(return false)
-  ).endsValidWord
-
+  def contains(word: String): Boolean = findNode(word).exists(_.endsValidWord)
 
   /**
    *  Returns all possible words (from those stored in the Trie) that start with a given prefix.
@@ -139,13 +148,9 @@ private case class TrieImpl(root: TrieNode) extends Trie {
    *   Could also make it not lose its place in the Trie as new letters are submitted in a real-time text stream -
    *   but that could get fairly complex.
    */
-  def suggestions(prefix: String): List[String] = {
-    val prefixEndNode = traverseFromRoot(
-      prefix,
-      (char, node) => node.existingChildWithChar(char).getOrElse(return List())
-    )
-    prefixEndNode.buildSuggestions(prefix)
-  }
+  def suggestions(prefix: String): List[String] = findNode(prefix)
+    .map(_.buildSuggestions(prefix))
+    .getOrElse(List())
 
 }
 
@@ -175,12 +180,11 @@ object ChildArrayTrie {
 
     override def existingChildWithChar(char: Char): Option[TrieNode] = children(indexFromChar(char))
 
-    override def childForChar(char: Char): TrieNode = existingChildWithChar(char)
-      .getOrElse {
-        val newNode = ChildArrayTrieNode()
-        children(indexFromChar(char)) = Some(newNode)
-        newNode
-      }
+    override def newChild(char: Char): TrieNode = {
+      val newNode = ChildArrayTrieNode()
+      children(indexFromChar(char)) = Some(newNode)
+      newNode
+    }
 
     override def buildSuggestions(prefix: String): List[String] = {
       if (prefix.isEmpty) return List()
@@ -193,6 +197,7 @@ object ChildArrayTrie {
         }.toList
       if(endsValidWord) childSuggestions :+ prefix else childSuggestions
     }
+
   }
 
   def apply(): Trie = TrieImpl(ChildArrayTrieNode())
@@ -207,14 +212,13 @@ object ChildListTrie {
 
     protected val children: mutable.MutableList[Letter] = mutable.MutableList[Letter]()
 
-    override def existingChildWithChar(char: Char): Option[TrieNode] = children.find { _.char == char }
+    override def existingChildWithChar(char: Char): Option[TrieNode] = children.find(_.char == char)
 
-    override def childForChar(char: Char): TrieNode = existingChildWithChar(char)
-      .getOrElse {
-        val newNode = Letter(char)
-        children += newNode
-        newNode
-      }
+    override def newChild(char: Char): TrieNode = {
+      val newNode = Letter(char)
+      children += newNode
+      newNode
+    }
 
   }
 
