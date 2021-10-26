@@ -8,6 +8,20 @@ private trait TrieOperations[N <: TrieNode[N]] extends Trie {
 
   type TraversalAction = N => Char => Option[N]
 
+  override def add(word: String): Unit = {
+    validateCharacters(word)
+    traverseFromRoot(
+      word,
+      traversalActionForAdd(word)
+    ).foreach(_.endsValidWord = true)
+  }
+
+  override def contains(word: String): Boolean = findNode(word).exists(_.endsValidWord)
+
+  override def suggestions(prefix: String): List[String] = findNode(prefix)
+    .map(suggestionsFromNode(_, prefix))
+    .getOrElse(List())
+
   protected def traverseFromRoot(word: String, action: TraversalAction): Option[N] = {
 
     @tailrec
@@ -23,15 +37,11 @@ private trait TrieOperations[N <: TrieNode[N]] extends Trie {
     inner(word, Some(root), action)
   }
 
+  protected def traversalActionForAdd(word: String): TraversalAction
+
   protected def findNode(chars: String): Option[N] = traverseFromRoot(chars, _.getChild)
 
-  override def contains(word: String): Boolean = findNode(word).exists(_.endsValidWord)
-
   protected def suggestionsFromNode(node: N, prefix: String): List[String]
-
-  def suggestions(prefix: String): List[String] = findNode(prefix)
-    .map(suggestionsFromNode(_, prefix))
-    .getOrElse(List())
 
   private def isASCIILetter(char: Char): Boolean = (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z')
 
@@ -40,16 +50,6 @@ private trait TrieOperations[N <: TrieNode[N]] extends Trie {
     if (badChars.nonEmpty) throw new IllegalArgumentException(
       s"Cannot add characters other than ASCII letters to trie - found ${badChars.mkString("'", "', '", "'")}."
     )
-  }
-
-  protected def traversalActionForAdd(word: String): TraversalAction
-
-  def add(word: String): Unit = {
-    validateCharacters(word)
-    traverseFromRoot(
-      word,
-      traversalActionForAdd(word)
-    ).foreach(_.endsValidWord = true)
   }
 
 }
