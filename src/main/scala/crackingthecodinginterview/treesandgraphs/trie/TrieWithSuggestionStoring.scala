@@ -1,55 +1,20 @@
 package crackingthecodinginterview.treesandgraphs.trie
 
-import scala.annotation.tailrec
+/**
+ * Trie implementation that can operate using any node type implementing SuggestionsStore.
+ *
+ * @param root Node implementation that will sit at root, intermediating creation of and access to other nodes.
+ */
+private case class TrieWithSuggestionStoring[N <: TrieNode[N] with SuggestionsStore](override val root: N)
+  extends TrieOperations[N] {
 
-private class TrieWithSuggestionStoring[N <: TrieNode[N] with SuggestionsStore](root: N) extends Trie {
-
-  type TraversalActionWithOriginalWord = N => (Char, String) => Option[N]
-
-  private def traverseFromRootWithOriginalWord
-  (
-    word: String,
-    action: TraversalActionWithOriginalWord
-  ): Option[N] = {
-
-    @tailrec
-    def inner
-    (
-      originalWord: String,
-      remainingWord: String,
-      nodeOption: Option[N],
-      action: TraversalActionWithOriginalWord
-    ): Option[N] = {
-      if (remainingWord.isEmpty) nodeOption
-      // This is effectively a flatMap but expanding to an explicit pattern-match allows tail recursion
-      else nodeOption match {
-        case None =>
-          None
-        case Some(node) =>
-          val nextNode = action(node)(remainingWord.head.toLower, originalWord)
-          inner(originalWord, remainingWord.tail, nextNode, action)
-      }
-    }
-
-    inner(word.toLowerCase(), word, Some(root), action)
-  }
-
-  private def findNode(chars: String) = traverseFromRootWithOriginalWord(
-    chars,
-    node => (char, _) => node.getChild(char)
-  )
-
-  override protected def addValidated(word: String): Unit = traverseFromRootWithOriginalWord(
-    word,
-    node => (char, fullWord) => {
+  override protected def traversalActionForAdd(word: String): TraversalAction =
+    node => char => {
       val nodeOption = node.childOptionForChar(char)
-      nodeOption.foreach(_.addSuggestion(fullWord))
+      nodeOption.foreach(_.addSuggestion(word.toLowerCase()))
       nodeOption
     }
-  ).foreach(_.endsValidWord = true)
 
-  override def contains(word: String): Boolean = findNode(word).exists(_.endsValidWord)
-
-  override def suggestions(prefix: String): List[String] = findNode(prefix).map(_.getSuggestions).getOrElse(List())
+  override protected def suggestionsFromNode(node: N, prefix: String): List[String] = node.getSuggestions
 
 }
