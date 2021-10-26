@@ -10,7 +10,7 @@ private case class ChildListNodeWithSuggestionBuilding(override val storedChar: 
   override def buildSuggestions(prefix: String): List[String] = {
     // Remove the last letter of the initial prefix passed so we don't re-add when we process the node itself,
     // then delegate to private method which can recurse in a consistent way.
-    innerBuildSuggestions(prefix.slice(0, prefix.length - 1))
+    innerBuildSuggestions(prefix.dropRight(1))
   }
 
   private def innerBuildSuggestions(prefix: String): List[String] = {
