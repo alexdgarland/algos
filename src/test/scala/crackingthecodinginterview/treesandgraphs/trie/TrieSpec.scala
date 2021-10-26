@@ -79,14 +79,26 @@ trait SharedTrieBehaviourTests {
 
 }
 
-class TrieWithChildListSpec extends AnyFlatSpec with should.Matchers with SharedTrieBehaviourTests {
+class ChildListTrieWithSuggestionBuildingSpec extends AnyFlatSpec with should.Matchers with SharedTrieBehaviourTests {
 
-  "Trie using ChildListTrieNode" should behave like defaultTrie(ChildListTrie())
+  "ChildListTrieWithSuggestionBuilding" should behave like defaultTrie(ChildListTrieWithSuggestionBuilding())
 
 }
 
-class TrieWithChildArraySpec extends AnyFlatSpec with should.Matchers with SharedTrieBehaviourTests {
+class ChildArrayTrieWithSuggestionBuildingSpec extends AnyFlatSpec with should.Matchers with SharedTrieBehaviourTests {
 
-  "Trie using ChildListArrayNode" should behave like defaultTrie(ChildArrayTrie())
+  "ChildArrayTrieWithSuggestionBuilding" should behave like defaultTrie(ChildArrayTrieWithSuggestionBuilding())
+
+}
+
+class ChildArrayTrieWithSuggestionStoringSpec extends AnyFlatSpec with should.Matchers with SharedTrieBehaviourTests {
+
+  "ChildArrayTrieWithSuggestionStoring" should behave like defaultTrie(ChildArrayTrieWithSuggestionStoring())
+
+}
+
+class ChildListTrieWithSuggestionStoringSpec extends AnyFlatSpec with should.Matchers with SharedTrieBehaviourTests {
+
+  "ChildListTrieWithSuggestionStoring" should behave like defaultTrie(ChildListTrieWithSuggestionStoring())
 
 }
