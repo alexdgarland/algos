@@ -16,7 +16,10 @@ private trait TrieOperations[N <: TrieNode[N]] extends Trie {
     ).foreach(_.endsValidWord = true)
   }
 
-  override def contains(word: String): Boolean = findNode(word).exists(_.endsValidWord)
+  override def contains(word: String): Boolean = {
+    validateCharacters(word)
+    findNode(word).exists(_.endsValidWord)
+  }
 
   override def suggestions(prefix: String): List[String] = findNode(prefix)
     .map(suggestionsFromNode(_, prefix))
@@ -48,7 +51,7 @@ private trait TrieOperations[N <: TrieNode[N]] extends Trie {
   private def validateCharacters(word: String): Unit = {
     val badChars = word.filter(char => !isASCIILetter(char))
     if (badChars.nonEmpty) throw new IllegalArgumentException(
-      s"Cannot add characters other than ASCII letters to trie - found ${badChars.mkString("'", "', '", "'")}."
+      s"Words in trie cannot contain characters other than ASCII letters - found ${badChars.mkString("'", "', '", "'")}."
     )
   }
 

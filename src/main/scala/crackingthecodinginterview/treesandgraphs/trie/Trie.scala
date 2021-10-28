@@ -20,7 +20,7 @@ trait Trie {
    * Check if word exists in the Trie.
    *
    * @param word Word to check for.
-   *             TODO - should probably also validate this on the way in and handle in a controlled way if it fails.
+   *             Must only contain standard ASCII letters, which will be store in a case-insensitive way.
    *
    * @return
    */

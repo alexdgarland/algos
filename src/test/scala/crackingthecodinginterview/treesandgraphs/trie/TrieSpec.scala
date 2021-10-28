@@ -18,11 +18,18 @@ trait SharedTrieBehaviourTests {
       trie
     }
 
+    def checkFailsValidation(action: Trie => String => Unit): Unit = {
+      val exception = intercept[IllegalArgumentException](action(newTrie)("Hello!?!"))
+      exception.getMessage should be(
+        "Words in trie cannot contain characters other than ASCII letters - found '!', '?', '!'.")
+    }
+
     it should "throw an error on trying to add a word with characters other than basic English letters" in {
-      val exception = intercept[IllegalArgumentException] {
-        newTrie.add("Hello!?!")
-      }
-      exception.getMessage should be("Cannot add characters other than ASCII letters to trie - found '!', '?', '!'.")
+      checkFailsValidation{ _.add }
+    }
+
+    it should "throw an error on checking if contains a word with characters other than basic English letters" in {
+      checkFailsValidation{ _.contains }
     }
 
     it should "identify word that is contained" in {
