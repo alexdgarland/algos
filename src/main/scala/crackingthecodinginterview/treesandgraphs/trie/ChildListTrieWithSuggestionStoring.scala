@@ -11,6 +11,6 @@ private case class ChildListNodeWithSuggestionStoring(override val storedChar: O
 
 object ChildListTrieWithSuggestionStoring {
 
-  def apply(): Trie = new TrieWithSuggestionStoring(ChildListNodeWithSuggestionStoring(None))
+  def apply(): Trie = TrieWithSuggestionStoring(ChildListNodeWithSuggestionStoring(None))
 
 }
