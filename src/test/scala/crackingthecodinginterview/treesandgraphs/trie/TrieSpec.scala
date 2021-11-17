@@ -82,6 +82,10 @@ trait SharedTrieBehaviourTests {
       trie.suggestions("hell").sorted should be(List("hellenistic", "hello", "hells", "hellscape"))
     }
 
+    it should "limit number of suggestions when requested" in {
+      testTrie.suggestions("hell", Some(3)).sorted should be(List("hellenistic", "hello", "hells"))
+    }
+
   }
 
 }

@@ -15,6 +15,11 @@ private case class TrieWithSuggestionStoring[N <: TrieNode[N] with SuggestionsSt
       nodeOption
     }
 
-  override protected def suggestionsFromNode(node: N, prefix: String): List[String] = node.getSuggestions
+  override protected def suggestionsFromNode
+  (
+    node: N,
+    prefix: String,
+    maxNumberOfSuggestions: Option[Int]
+  ): List[String] = node.getSuggestions(maxNumberOfSuggestions)
 
 }

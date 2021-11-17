@@ -10,6 +10,11 @@ private case class TrieWithSuggestionBuilding[N <: TrieNode[N] with SuggestionBu
 
   override protected def traversalActionForAdd(word: String): TraversalAction = _.childOptionForChar
 
-  override protected def suggestionsFromNode(node: N, prefix: String): List[String] = node.buildSuggestions(prefix)
+  override protected def suggestionsFromNode
+  (
+    node: N,
+    prefix: String,
+    maxNumberOfSuggestions: Option[Int]
+  ): List[String] = node.buildSuggestions(prefix, maxNumberOfSuggestions)
 
 }

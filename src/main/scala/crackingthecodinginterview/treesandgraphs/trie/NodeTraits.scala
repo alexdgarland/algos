@@ -79,11 +79,7 @@ There are two obvious ways to do it, as per the two alternative traits below.
  */
 private trait SuggestionBuilder {
 
-  // TODO - could potentially allow limiting to only return a maximum of n words (first found in an arbitrary order),
-  //  which could terminate the build process early in some cases and hence improve performance
-  //  The most performant approach would go depth-first which would result in suggestions coming back in alphabetical order;
-  //  the equivalent contract could also be implemented for the store below, although this be unlikely to improve performance (probably the reverse).
-  def buildSuggestions(prefix: String): List[String]
+  def buildSuggestions(prefix: String, maxNumberOfSuggestions: Option[Int]): List[String]
 
 }
 
@@ -100,8 +96,10 @@ private trait SuggestionsStore {
   // Could potentially add info to allow returning the most relevant suggestions first but this could be a bit complex:
   //  - to truly understand relevance, we need some kind of deep dataset
   //    that would almost certainly extend beyond the lifetime of the in-memory data structure.
-  def getSuggestions: List[String] = suggestions.toList
+  def getSuggestions(maxNumberOfSuggestions: Option[Int]): List[String] =
+    maxNumberOfSuggestions match {
+        case None => suggestions.toList
+        case Some(max) => suggestions.toList.sorted.take(max)
+      }
 
 }
-
-
