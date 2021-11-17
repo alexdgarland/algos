@@ -21,8 +21,9 @@ private trait TrieOperations[N <: TrieNode[N]] extends Trie {
     findNode(word).exists(_.endsValidWord)
   }
 
-  override def suggestions(prefix: String): List[String] = findNode(prefix)
-    .map(suggestionsFromNode(_, prefix))
+  override def suggestions(prefix: String, maxNumberOfSuggestions: Option[Int]): List[String] =
+    findNode(prefix)
+    .map(suggestionsFromNode(_, prefix, maxNumberOfSuggestions))
     .getOrElse(List())
 
   protected def traverseFromRoot(word: String, action: TraversalAction): Option[N] = {
@@ -44,7 +45,7 @@ private trait TrieOperations[N <: TrieNode[N]] extends Trie {
 
   protected def findNode(chars: String): Option[N] = traverseFromRoot(chars, _.getChild)
 
-  protected def suggestionsFromNode(node: N, prefix: String): List[String]
+  protected def suggestionsFromNode(node: N, prefix: String, maxNumberOfSuggestions: Option[Int]): List[String]
 
   private def isASCIILetter(char: Char): Boolean = (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z')
 

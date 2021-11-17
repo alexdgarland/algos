@@ -11,6 +11,6 @@ private case class ChildArrayNodeWithSuggestionStoring()
 
 object ChildArrayTrieWithSuggestionStoring {
 
-  def apply(): Trie = new TrieWithSuggestionStoring(ChildArrayNodeWithSuggestionStoring())
+  def apply(): Trie = TrieWithSuggestionStoring(ChildArrayNodeWithSuggestionStoring())
 
 }

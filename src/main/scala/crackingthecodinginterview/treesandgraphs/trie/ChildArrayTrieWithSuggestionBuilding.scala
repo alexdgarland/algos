@@ -6,12 +6,12 @@ private case class ChildArraySuggestionBuilderNode()
 
   protected override def createNewNode(): ChildArraySuggestionBuilderNode = ChildArraySuggestionBuilderNode()
 
-  override def buildSuggestions(prefix: String): List[String] = {
+  override def buildSuggestions(prefix: String, maxNumberOfSuggestions: Option[Int]): List[String] = {
     if (prefix.isEmpty) return List()
     val childSuggestions = children
       .zipWithIndex
       .flatMap { case (nodeOption, index) =>
-        nodeOption.map { _.buildSuggestions(prefix + charFromIndex(index))}
+        nodeOption.map { _.buildSuggestions(prefix + charFromIndex(index), maxNumberOfSuggestions)}
           .getOrElse(List())
       }.toList
     if (endsValidWord) childSuggestions :+ prefix else childSuggestions
