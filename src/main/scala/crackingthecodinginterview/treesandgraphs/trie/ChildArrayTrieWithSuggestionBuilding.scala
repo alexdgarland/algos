@@ -7,16 +7,24 @@ private case class ChildArraySuggestionBuilderNode()
   protected override def createNewNode(): ChildArraySuggestionBuilderNode = ChildArraySuggestionBuilderNode()
 
   override def buildSuggestions(prefix: String, maxNumberOfSuggestions: Option[Int]): List[String] = {
-    if (prefix.isEmpty) return List()
-    val childSuggestions = children
+    if (prefix.isEmpty || maxNumberOfSuggestions.contains(0)) return List()
+    children
       .zipWithIndex
-      .flatMap { case (nodeOption, index) =>
-        nodeOption.map { _.buildSuggestions(prefix + charFromIndex(index), maxNumberOfSuggestions)}
-          .getOrElse(List())
-      }.toList
-    if (endsValidWord) childSuggestions :+ prefix else childSuggestions
+      .foldLeft(if(endsValidWord) List(prefix) else List()) {
+        (suggestionsSoFar, nextArgs) =>
+          val (childNode, index) = nextArgs
+          val remainingSuggestionCount = maxNumberOfSuggestions.map(s => s - suggestionsSoFar.length)
+          if(remainingSuggestionCount.contains(0)) {
+            suggestionsSoFar
+          }
+          else {
+            suggestionsSoFar :::
+              childNode
+                .map(_.buildSuggestions(prefix + charFromIndex(index), remainingSuggestionCount))
+                .getOrElse(List())
+          }
+      }
   }
-
 }
 
 object ChildArrayTrieWithSuggestionBuilding {
