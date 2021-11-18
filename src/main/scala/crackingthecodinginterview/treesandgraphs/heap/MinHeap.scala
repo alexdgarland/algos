@@ -26,21 +26,23 @@ class MinHeap[T](implicit ordering: Ordering[T]) {
   /**
    * Visualise the heap as a tree.
    *
-   * Very basic and currently assumes single-digit integers (i.e. one character of space needed) only.
+   * Very basic and currently assumes (in terms of producing a readable visualisatio)
+   * that no more than double-digit integers (i.e. 1-2 characters of space needed) are used as the node type.
    *
    * @return
    */
   def visualise: String = {
+    val maxCharWidth = array.map{_.toString.length}.max
     (0 until height)
       .map { level =>
-        val spaceBetween = " ".repeat(math.pow(2, height + 1 - level).toInt - 1)
+        val spaceBetween = " ".repeat(math.pow(2, height + 1 - level).toInt - maxCharWidth)
         val edgeSpace = " ".repeat(math.pow(2, height - level).toInt - 2)
-        val nodeIndicesAtLevel = (
-          math.pow(2, level).toInt - 1
-            until
-            math.min(math.pow(2, level + 1).toInt - 1 , array.size)
-          )
-      nodeIndicesAtLevel.map{array}.mkString(edgeSpace, spaceBetween, "")
+        val firstIndexAtLevel = math.pow(2, level).toInt - 1
+        val lastIndexAtLevel = math.min(math.pow(2, level + 1).toInt - 1 , array.size) - 1
+        (firstIndexAtLevel to lastIndexAtLevel)
+          .map{array(_).toString.padTo(maxCharWidth, ' ') }
+          .mkString(edgeSpace, spaceBetween, "")
+          .stripTrailing()
     }.mkString("\n", "\n", "\n")
   }
 

@@ -27,11 +27,17 @@ class MinHeapSpec extends AnyFlatSpec with should.Matchers {
     heap.visualise should be(expected)
   }
 
-//  val expected = """
-//                   |              1
-//                   |      2               3
-//                   |  4       5       6       7
-//                   |8   9   1   2   3   4   5   6
-//                   |""".stripMargin
+  it should "display graphic version of heap tree with double-digit numbers" in {
+    val heap = new MinHeap[Int]()
+    (1 to 15).foreach(heap.insert)
+    val expected =
+      """
+        |              1
+        |      2               3
+        |  4       5       6       7
+        |8   9   10  11  12  13  14  15
+        |""".stripMargin
+    heap.visualise should be(expected)
+  }
 
 }
