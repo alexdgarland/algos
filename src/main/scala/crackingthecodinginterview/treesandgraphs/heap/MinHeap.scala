@@ -3,6 +3,10 @@ package crackingthecodinginterview.treesandgraphs.heap
 import scala.collection.mutable.ArrayBuffer
 
 class MinHeap[T](implicit ordering: Ordering[T]) {
+// TODO - any general cleanup?
+// TODO - should peekMin/ popMin return Option[T] so can return None for empty heap?
+
+  import ordering.mkOrderingOps
 
   private val array = ArrayBuffer[T]()
 
@@ -10,18 +14,53 @@ class MinHeap[T](implicit ordering: Ordering[T]) {
 
   def height: Int = (math.log(array.size) / math.log(2.0)).ceil.toInt
 
-  def insert(value: T): Unit = {
-    array.append(value)
-    // TODO - maintain heap property
+  private def swapAt(i1: Int, i2: Int): Unit = {
+    val tmp = array(i1)
+    array(i1) = array(i2)
+    array(i2) = tmp
   }
 
-  def popMin(): T = {
-    val min = array.remove(0)
-    // TODO - remove, while maintaining heap property
-    min
+  def insert(value: T): Unit = {
+    array.append(value)
+    var currentIndex = array.size - 1
+    var reachedCorrectLevel = false
+    while(currentIndex != 0 && !reachedCorrectLevel) {
+      val parentIndex = (currentIndex / 2.0).ceil.toInt - 1
+      if(array(parentIndex) > array(currentIndex)) {
+        swapAt(parentIndex, currentIndex)
+      }
+      else {
+        reachedCorrectLevel = true
+      }
+      currentIndex = parentIndex
+    }
   }
 
   def peekMin(): T = array.head
+
+  def popMin(): T = {
+    val minToReturn = peekMin()
+    val swapped = array.remove(array.size - 1)
+    array(0) = swapped
+    var currentIndex = 0
+    var reachedCorrectLevel = false
+    while (currentIndex < (array.size - 1) && !reachedCorrectLevel) {
+      val leftIndex = (2 * currentIndex) + 1
+      val rightIndex = (2 * currentIndex) + 2
+      val eligibleChildIndexes = List(leftIndex, rightIndex)
+        .filter(i => i < array.size)
+        .filter(i => array(i) < array(currentIndex))
+      if (eligibleChildIndexes.isEmpty) {
+        reachedCorrectLevel = true
+      }
+      else {
+        val childIndexToSwap = eligibleChildIndexes.minBy{ array(_) }
+        swapAt(childIndexToSwap, currentIndex)
+        currentIndex = childIndexToSwap
+      }
+    }
+    minToReturn
+  }
 
   /**
    * Visualise the heap as a tree.
