@@ -43,20 +43,28 @@ class MinHeapSpec extends AnyFlatSpec with should.Matchers {
   "peekMin" should "indicate minimum where elements were added in ascending order" in {
     val heap = new MinHeap[Int]()
     (1 to 6).foreach(heap.insert)
-    heap.peekMin() should be(1)
+    heap.peekMin() should be(Some(1))
   }
 
   it should "indicate minimum where elements were added in arbitrary order" in {
     val heap = new MinHeap[Int]()
     List(3, 6, 4, 1, 5, 2).foreach(heap.insert)
-    heap.peekMin() should be(1)
+    heap.peekMin() should be(Some(1))
+  }
+
+  it should "return None when heap is empty" in {
+    new MinHeap[Int]().peekMin() should be(None)
   }
 
   "popMin" should "remove minimum element while maintaining heap property" in {
     val heap = new MinHeap[Int]()
     List(3, 6, 4, 1, 5, 2).foreach(heap.insert)
-    heap.popMin() should be(1)
-    heap.peekMin() should be(2)
+    heap.popMin() should be(Some(1))
+    heap.peekMin() should be(Some(2))
+  }
+
+  it should "return None when heap is empty" in {
+    new MinHeap[Int]().popMin() should be(None)
   }
 
 }

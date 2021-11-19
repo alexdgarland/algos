@@ -3,8 +3,6 @@ package crackingthecodinginterview.treesandgraphs.heap
 import scala.collection.mutable.ArrayBuffer
 
 class MinHeap[T](implicit ordering: Ordering[T]) {
-// TODO - any general cleanup?
-// TODO - should peekMin/ popMin return Option[T] so can return None for empty heap?
 
   import ordering.mkOrderingOps
 
@@ -20,8 +18,7 @@ class MinHeap[T](implicit ordering: Ordering[T]) {
     array(i2) = tmp
   }
 
-  def insert(value: T): Unit = {
-    array.append(value)
+  private def bubbleUp(): Unit = {
     var currentIndex = array.size - 1
     var reachedCorrectLevel = false
     while(currentIndex != 0 && !reachedCorrectLevel) {
@@ -36,28 +33,38 @@ class MinHeap[T](implicit ordering: Ordering[T]) {
     }
   }
 
-  def peekMin(): T = array.head
+  def insert(value: T): Unit = {
+    array.append(value)
+    bubbleUp()
+  }
 
-  def popMin(): T = {
-    val minToReturn = peekMin()
-    val swapped = array.remove(array.size - 1)
-    array(0) = swapped
+  def peekMin(): Option[T] = array.headOption
+
+  private def bubbleDown(): Unit = {
+    array(0) = array.remove(array.size - 1)
     var currentIndex = 0
     var reachedCorrectLevel = false
     while (currentIndex < (array.size - 1) && !reachedCorrectLevel) {
-      val leftIndex = (2 * currentIndex) + 1
-      val rightIndex = (2 * currentIndex) + 2
-      val eligibleChildIndexes = List(leftIndex, rightIndex)
-        .filter(i => i < array.size)
-        .filter(i => array(i) < array(currentIndex))
-      if (eligibleChildIndexes.isEmpty) {
+      val eligibleChildIndices = (1 to 2)
+        .map((2 * currentIndex) + _)
+        .filter(i => i < array.size && array(i) < array(currentIndex))
+      if (eligibleChildIndices.isEmpty) {
         reachedCorrectLevel = true
       }
       else {
-        val childIndexToSwap = eligibleChildIndexes.minBy{ array(_) }
+        val childIndexToSwap = eligibleChildIndices.minBy {
+          array(_)
+        }
         swapAt(childIndexToSwap, currentIndex)
         currentIndex = childIndexToSwap
       }
+    }
+  }
+
+  def popMin(): Option[T] = {
+    val minToReturn = peekMin()
+    if(minToReturn.isDefined) {
+      bubbleDown()
     }
     minToReturn
   }
