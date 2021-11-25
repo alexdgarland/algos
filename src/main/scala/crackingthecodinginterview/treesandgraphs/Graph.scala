@@ -1,14 +1,20 @@
 package crackingthecodinginterview.treesandgraphs
 
-import scala.collection.mutable
-
-case class GraphNode[T]
+class GraphNode[T]
 (
-  value: T,
-  children: mutable.MutableList[GraphNode[T]] = mutable.MutableList[GraphNode[T]]()
+  val value: T,
+  val children: List[GraphNode[T]] = List()
 ) {
 
-  def depthFirstSearch(predicate: T => Boolean): Option[T] = None
+  // TODO - cycle detection - don't have a unit test for this yet
+  def depthFirstSearch(predicate: T => Boolean): Option[T] = {
+    children.foreach { node =>
+      if(predicate(node.value)) return Some(node.value)
+      val innerSearchResult = node.depthFirstSearch(predicate)
+      if (innerSearchResult.isDefined) return innerSearchResult
+    }
+    None
+  }
 
   def breadthFirstSearch(predicate: T => Boolean): Option[T] = None
 
