@@ -3,6 +3,8 @@ package crackingthecodinginterview.treesandgraphs
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should
 
+import scala.collection.mutable
+
 class GraphSpec extends AnyFlatSpec with should.Matchers {
 
   private case class ValueStructure(description: String, property1: Int)
@@ -25,10 +27,10 @@ class GraphSpec extends AnyFlatSpec with should.Matchers {
 
   private val nodeWithChildren = new GraphNode(
     ValueStructure("Starting node", 1),
-    List(
+    mutable.MutableList(
       new GraphNode(
         nonMatchingValue,
-        List(
+        mutable.MutableList(
           new GraphNode(nonMatchingValue),
           new GraphNode(ValueStructure(depthFirstNodeDescription, 3))
         )
@@ -49,5 +51,27 @@ class GraphSpec extends AnyFlatSpec with should.Matchers {
 //      .breadthFirstSearch(_.property1 > 2)
 //      .map(_.description) should be(Some(breadthFirstNodeDescription))
 //  }
+
+  private val nodeWithCircularReference = {
+    val node1 = new GraphNode(ValueStructure("Starting node", 1))
+    val node2 = new GraphNode(nonMatchingValue)
+    val node3 = new GraphNode(nonMatchingValue)
+    node1.children += node2
+    node2.children += node3
+    node3.children += node1
+    node1
+  }
+
+  "GraphNode with circular reference" should "be able to perform depth-first search" in {
+    nodeWithCircularReference
+      .depthFirstSearch(_.property1 > 2)
+      .map(_.description) should be(None)
+  }
+
+  //  it should "be able to perform breadth-first search" in {
+  //    nodeWithChildren
+  //      .breadthFirstSearch(_.property1 > 2)
+  //      .map(_.description) should be(None)
+  //  }
 
 }
