@@ -15,16 +15,16 @@ class GraphNode[T]
     predicate: T => Boolean,
     seenNodes: mutable.HashSet[Int]
   ): Option[T] = {
-    // TODO this doesn't currently check whether the root node matches predicate
+    if(predicate(value))
+      return Some(value)
     children.foreach { node =>
-      if(seenNodes.contains(node.hashCode()))
-        return None
-      seenNodes.add(node.hashCode())
-      if(predicate(node.value))
-        return Some(node.value)
-      val innerSearchResult = node.depthFirstSearch(predicate, seenNodes)
-      if (innerSearchResult.isDefined)
-        return innerSearchResult
+      if(!seenNodes.contains(node.hashCode())) {
+        seenNodes.add(node.hashCode())
+        // TODO (maybe) - this can overflow the stack due to recursion
+        val innerSearchResult = node.depthFirstSearch(predicate, seenNodes)
+        if (innerSearchResult.isDefined)
+          return innerSearchResult
+      }
     }
     None
   }
@@ -46,13 +46,3 @@ class GraphNode[T]
   }
 
 }
-
-//case class Graph[T](nodes: List[GraphNode[T]])
-//
-//object DirectedGraph {
-//
-//  def existsRouteBetween[T](node1: GraphNode[T], node2: GraphNode[T]): Boolean = {
-//    false
-//  }
-//
-//}
