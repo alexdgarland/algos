@@ -68,10 +68,10 @@ class GraphSpec extends AnyFlatSpec with should.Matchers {
       .map(_.description) should be(None)
   }
 
-  //  it should "be able to perform breadth-first search" in {
-  //    nodeWithChildren
-  //      .breadthFirstSearch(_.property1 > 2)
-  //      .map(_.description) should be(None)
-  //  }
+    it should "be able to perform breadth-first search" in {
+      nodeWithCircularReference
+        .breadthFirstSearch(_.property1 > 2)
+        .map(_.description) should be(None)
+    }
 
 }

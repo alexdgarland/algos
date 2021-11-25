@@ -30,13 +30,17 @@ class GraphNode[T]
   }
 
   def breadthFirstSearch(predicate: T => Boolean): Option[T] = {
+    val seenNodes = mutable.HashSet[Int]()
     val queue = mutable.Queue[GraphNode[T]]()
     queue.enqueue(this)
     while(queue.nonEmpty) {
       val currentNode = queue.dequeue()
-      if(predicate(currentNode.value))
-        return Some(currentNode.value)
-      currentNode.children.foreach(queue.enqueue(_))
+      if(!seenNodes.contains(currentNode.hashCode())) {
+        seenNodes.add(currentNode.hashCode())
+        if(predicate(currentNode.value))
+          return Some(currentNode.value)
+        currentNode.children.foreach(queue.enqueue(_))
+      }
     }
     None
   }
