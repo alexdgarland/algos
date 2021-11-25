@@ -8,11 +8,14 @@ class GraphNode[T]
   val children: mutable.MutableList[GraphNode[T]] = mutable.MutableList[GraphNode[T]]()
 ) {
 
+  def depthFirstSearch(predicate: T => Boolean): Option[T] = depthFirstSearch(predicate, mutable.HashSet[Int]())
+
   private def depthFirstSearch
   (
     predicate: T => Boolean,
     seenNodes: mutable.HashSet[Int]
   ): Option[T] = {
+    // TODO this doesn't currently check whether the root node matches predicate
     children.foreach { node =>
       if(seenNodes.contains(node.hashCode()))
         return None
@@ -26,9 +29,17 @@ class GraphNode[T]
     None
   }
 
-  def depthFirstSearch(predicate: T => Boolean): Option[T] = depthFirstSearch(predicate, mutable.HashSet[Int]())
-
-  def breadthFirstSearch(predicate: T => Boolean): Option[T] = None
+  def breadthFirstSearch(predicate: T => Boolean): Option[T] = {
+    val queue = mutable.Queue[GraphNode[T]]()
+    queue.enqueue(this)
+    while(queue.nonEmpty) {
+      val currentNode = queue.dequeue()
+      if(predicate(currentNode.value))
+        return Some(currentNode.value)
+      currentNode.children.foreach(queue.enqueue(_))
+    }
+    None
+  }
 
 }
 

@@ -12,11 +12,11 @@ class GraphSpec extends AnyFlatSpec with should.Matchers {
   private val nodeWithNoChildren = new GraphNode(ValueStructure("Only node", 1))
 
   "GraphNode without children" should "be able to perform depth-first search" in {
-    nodeWithNoChildren.depthFirstSearch(_.property1 == 1) should be(None)
+    nodeWithNoChildren.depthFirstSearch(_.property1 > 2) should be(None)
   }
 
   it should "be able to perform breadth-first search" in {
-    nodeWithNoChildren.breadthFirstSearch(_.property1 == 1) should be(None)
+    nodeWithNoChildren.breadthFirstSearch(_.property1 > 2) should be(None)
   }
 
   private val nonMatchingValue = ValueStructure("Doesn't meet predicate", 2)
@@ -46,11 +46,11 @@ class GraphSpec extends AnyFlatSpec with should.Matchers {
       .map(_.description) should be(Some(depthFirstNodeDescription))
   }
 
-//  it should "be able to perform breadth-first search" in {
-//    nodeWithChildren
-//      .breadthFirstSearch(_.property1 > 2)
-//      .map(_.description) should be(Some(breadthFirstNodeDescription))
-//  }
+  it should "be able to perform breadth-first search" in {
+    nodeWithChildren
+      .breadthFirstSearch(_.property1 > 2)
+      .map(_.description) should be(Some(breadthFirstNodeDescription))
+  }
 
   private val nodeWithCircularReference = {
     val node1 = new GraphNode(ValueStructure("Starting node", 1))
